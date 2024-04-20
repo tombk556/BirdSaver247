@@ -8,4 +8,5 @@
     <string name="ip_address">IP Address</string>
     <string name="home">Home</string>
     <string name="back">Back</string>
+    <string name="location_coordinates">Längengrad: %1$s\nBreitengrad: %2$s</string>
 </resources>
