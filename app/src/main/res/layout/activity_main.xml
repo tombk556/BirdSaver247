@@ -20,24 +20,24 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
-        android:id="@id/gpsButton"
+        android:id="@+id/ipAddressViewButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="556dp"
         android:onClick="navigateToIpAddressView"
-        android:text="@string/ip_address_view"
+        android:text="@string/navigateToIpAddressView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@id/Button1"
+        android:id="@+id/deleteViewButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="508dp"
         android:onClick="navigateToDeleteView"
-        android:text="@string/delte_view"
+        android:text="@string/navigateToDeleteView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.055"
@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="460dp"
         android:onClick="navigateToGpsView"
-        android:text="@string/gps_view"
+        android:text="@string/navigateToGpsView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.053"
@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="412dp"
         android:onClick="navigateToRedPixelDetectorView"
-        android:text="@string/red_pixel_detection"
+        android:text="@string/navigateToRedPixelDetectorView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.053"
