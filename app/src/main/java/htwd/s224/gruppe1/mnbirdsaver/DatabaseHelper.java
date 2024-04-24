@@ -8,16 +8,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.UUID;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "Measurements.db";
-    private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "Measurement";
-    private static final String MEASUREMENT_ID = "measurement_id";
-    private static final String PIXEL_X_COORD = "pixel_x_coord";
-    private static final String PIXEL_Y_COORD = "pixel_y_coord";
+    public static final String DATABASE_NAME = "Measurements.db";
+    public static final int DATABASE_VERSION = 1;
+    public static final String TABLE_NAME = "Measurement";
+    public static final String MEASUREMENT_ID = "measurement_id";
+    public static final String PIXEL_X_COORD = "pixel_x_coord";
+    public static final String PIXEL_Y_COORD = "pixel_y_coord";
 
-    private static final String GPS_X_COORD = "gps_x_coord";
+    public static final String GPS_X_COORD = "gps_x_coord";
 
-    private static final String GPS_Y_COORD = "gps_y_coord";
+    public static final String GPS_Y_COORD = "gps_y_coord";
 
     private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
             + MEASUREMENT_ID + " TEXT PRIMARY KEY,"
