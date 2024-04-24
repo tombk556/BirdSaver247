@@ -22,10 +22,8 @@ import java.util.List;
 public class ActivityRedPixelDetector extends AppCompatActivity {
     Button btnPickImage;
     ImageView imageView;
-
     ActivityResultLauncher<Intent> resultLauncher;
-
-
+    DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +32,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {
 
         btnPickImage = findViewById(R.id.btnPickImage);
         imageView = findViewById(R.id.imageView);
+        dbHelper = new DatabaseHelper(this); // Initialize the helper
         registerResult();
 
         btnPickImage.setOnClickListener(view -> pickImage());
@@ -70,9 +69,11 @@ public class ActivityRedPixelDetector extends AppCompatActivity {
             List<PixelDetector.Coordinate> redPixels = PixelDetector.isPixelRed(bitmap);
 
             if (!redPixels.isEmpty()) {
-                PixelDetector.Coordinate center = redPixels.get(0);
-                Log.d("RedPixelCenter", "Center of red pixels: " + center.toString());
-                Toast.makeText(this, "Center of red pixels: X: " + center.x + ", Y: " + center.y, Toast.LENGTH_LONG).show();
+                for (PixelDetector.Coordinate center : redPixels) {
+                    Log.d("RedPixelCenter", "Center of red pixels: " + center.toString());
+                    dbHelper.addRedPixel(center.x, center.y, 12.23f, 12.2f); // Store each red pixel in the database
+                    Toast.makeText(this, "Red pixel saved: X: " + center.x + ", Y: " + center.y, Toast.LENGTH_LONG).show();
+                }
             } else {
                 Toast.makeText(this, "No red pixels found.", Toast.LENGTH_SHORT).show();
             }
@@ -81,6 +82,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {
             Toast.makeText(this, "Image file not found", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
 }
