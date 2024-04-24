@@ -105,15 +105,11 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
                 null, null, null, null, null);
 
         while (cursor.moveToNext()) {
-            @SuppressLint("Range") String id = cursor.getString(cursor.getColumnIndex("measurement_id"));
             @SuppressLint("Range") int pixelX = cursor.getInt(cursor.getColumnIndex("pixel_x_coord"));
             @SuppressLint("Range") int pixelY = cursor.getInt(cursor.getColumnIndex("pixel_y_coord"));
-            @SuppressLint("Range") float gpsX = cursor.getFloat(cursor.getColumnIndex("gps_x_coord"));
-            @SuppressLint("Range") float gpsY = cursor.getFloat(cursor.getColumnIndex("gps_y_coord"));
             @SuppressLint("Range") String createdAt = cursor.getString(cursor.getColumnIndex("created_at"));
 
-            String displayText = "ID: " + id + ", Pixel X: " + pixelX + ", Pixel Y: " + pixelY +
-                    ", GPS X: " + gpsX + ", GPS Y: " + gpsY + ", Created At: " + createdAt;
+            String displayText = "Date: " + createdAt + ", X: " + pixelX + ", Y: " + pixelY;
             listItems.add(displayText);
         }
         cursor.close();

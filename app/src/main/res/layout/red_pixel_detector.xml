@@ -33,8 +33,8 @@
 
     <ListView
         android:id="@+id/listViewMeasurements"
-        android:layout_width="327dp"
-        android:layout_height="213dp"
+        android:layout_width="416dp"
+        android:layout_height="233dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
