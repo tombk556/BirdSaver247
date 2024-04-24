@@ -6,6 +6,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".GPSActivity">
 
+    <!-- header -->
+    <include layout="@layout/fragment_header"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Latitude -->
     <TextView
@@ -15,7 +21,7 @@
         android:layout_marginTop="32dp"
         android:text="Latitude:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/header" />
 
     <TextView
         android:id="@+id/tv_lat"
@@ -24,7 +30,7 @@
         android:layout_marginTop="32dp"
         android:text="0.00"
         app:layout_constraintStart_toEndOf="@+id/tv_labellat"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/header" />
 
     <!-- Longitude -->
     <TextView
@@ -189,5 +195,12 @@
         app:layout_constraintStart_toEndOf="@+id/tv_labelsensor"
         app:layout_constraintTop_toTopOf="@+id/tv_labelsensor" />
 
+    <!-- Footer -->
+    <include
+        android:id="@+id/footer"
+        layout="@layout/fragment_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,6 +28,8 @@
         <activity android:name=".IpAddressView"/>
         <activity android:name=".GPSActivity"/>
         <activity android:name=".ActivityRedPixelDetector"/>
+        <activity android:name=".FragmentFooter"/>
+        <activity android:name=".CameraView"/>
     </application>
 
 </manifest>

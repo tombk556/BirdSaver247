@@ -8,5 +8,10 @@
     <string name="ip_address">IP Address</string>
     <string name="home">Home</string>
     <string name="back">Back</string>
+    <string name="deleteView">Lösche View</string>
     <string name="location_coordinates">Längengrad: %1$s\nBreitengrad: %2$s</string>
+    <string name="navigateToCameraView">Camera View</string>
+    <string name="kameraView">Kamera View</string>
+    <string name="coordinates">GPS Koordinaten</string>
+    <string name="startCalibration">Starte Kalibrierung</string>
 </resources>
