@@ -9,6 +9,7 @@
     android:background="@color/white">
 
     <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
         android:layout_width="418dp"
         android:layout_height="62dp"
         android:background="#CDCACA"
@@ -50,24 +51,34 @@
         android:autofillHints=""
         />
 
+    <!-- Footer -->
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="556dp"
+        android:layout_marginBottom="92dp"
         android:onClick="submitIpAddress"
         android:text="@string/submit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintHorizontal_bias="0.078"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Footer -->
     <include
         android:id="@+id/footer"
         layout="@layout/fragment_footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="394dp"
+        android:layout_height="285dp"
+        app:layout_constraintBottom_toTopOf="@+id/fragmentContainerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
