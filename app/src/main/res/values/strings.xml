@@ -14,4 +14,6 @@
     <string name="kameraView">Kamera View</string>
     <string name="coordinates">GPS Koordinaten</string>
     <string name="startCalibration">Starte Kalibrierung</string>
+    <string name="start">Start</string>
+    <string name="_141_56_131_15">141.56.131.15</string>
 </resources>

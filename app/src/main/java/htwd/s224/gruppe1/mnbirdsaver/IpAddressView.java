@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -18,6 +19,7 @@ public class IpAddressView extends AppCompatActivity {
 
     private ImageView imageView;
     private EditText editText;
+    private Button toggleButton;  // Reference to the button
     private Handler handler = new Handler();
     private boolean isDownloading = false;
     private Runnable imageDownloader = new Runnable() {
@@ -35,14 +37,18 @@ public class IpAddressView extends AppCompatActivity {
         setContentView(R.layout.ip_address_view);
         imageView = findViewById(R.id.imageView3);
         editText = findViewById(R.id.editText);
+        toggleButton = findViewById(R.id.submitButton);  // Assuming the button's ID is submitButton
+        toggleButton.setText("Start");  // Set initial text to "Start"
     }
 
     public void submitIpAddress(View view) {
         if (!isDownloading) {
             isDownloading = true;
+            toggleButton.setText("Stop");
             handler.post(imageDownloader); // start downloading
         } else {
             isDownloading = false;
+            toggleButton.setText("Start");
             handler.removeCallbacks(imageDownloader); // stop downloading
         }
     }
