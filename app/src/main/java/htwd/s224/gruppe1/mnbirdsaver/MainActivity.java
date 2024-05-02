@@ -3,6 +3,7 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -10,48 +11,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private EditText editText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.ip_address_view);
+        editText = findViewById(R.id.editText);
+
         requestLocationPermission();  // wichtig, sonst funktioniert GPS später nicht!
-    }
-
-
-    public void navigateToIpAddressView(View view){
-        // navigate to ip address view
-        Intent intent = new Intent(this, IpAddressView.class);
-        startActivity(intent);
-    }
-
-    public void navigateToDeleteView(View view){
-        // navigate to ip address view
-        Intent intent = new Intent(this, DeleteView.class);
-        startActivity(intent);
-    }
-
-    public void navigateToGpsView(View view){
-        // navigate to ip address view
-        Intent intent = new Intent(this, GPSActivity.class);
-        startActivity(intent);
-    }
-
-    public void navigateToRedPixelDetectorView(View view){
-        // navigate to ip address view
-        Intent intent = new Intent(this, ActivityRedPixelDetector.class);
-        startActivity(intent);
-    }
-
-    public void navigateToCameraView(View view){
-        // navigate to camera view
-        Intent intent = new Intent(this, CameraView.class);
-        startActivity(intent);
     }
 
     private void requestLocationPermission() {
@@ -76,5 +53,43 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void startCalibration(View view){
+        //navigate to ip address view
+        Intent intent = new Intent(this, CameraView.class);
+        intent.putExtra("IPADDRESS", editText.getText().toString());
+        startActivity(intent);
+    }
+
+
+//    public void navigateToIpAddressView(View view){
+//        // navigate to ip address view
+//        Intent intent = new Intent(this, IpAddressView.class);
+//        startActivity(intent);
+//    }
+//
+//    public void navigateToDeleteView(View view){
+//        // navigate to ip address view
+//        Intent intent = new Intent(this, DeleteView.class);
+//        startActivity(intent);
+//    }
+//
+//    public void navigateToGpsView(View view){
+//        // navigate to ip address view
+//        Intent intent = new Intent(this, GPSActivity.class);
+//        startActivity(intent);
+//    }
+//
+//    public void navigateToRedPixelDetectorView(View view){
+//        // navigate to ip address view
+//        Intent intent = new Intent(this, ActivityRedPixelDetector.class);
+//        startActivity(intent);
+//    }
+//
+//    public void navigateToCameraView(View view){
+//        // navigate to camera view
+//        Intent intent = new Intent(this, CameraView.class);
+//        startActivity(intent);
+//    }
 
 }
