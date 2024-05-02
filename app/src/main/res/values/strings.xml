@@ -18,6 +18,6 @@
     <string name="startCalibration">Starte Kalibrierung</string>
     <string name="input">IP Adresse und Name eingeben</string>
     <string name="name">Name</string>
-
-
+    <string name="start">Start</string>
+    <string name="_141_56_131_15">141.56.131.15</string>
 </resources>
