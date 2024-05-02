@@ -34,7 +34,7 @@ public class IpAddressView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ip_address_view);
+        setContentView(R.layout.ip_address_view2);
         imageView = findViewById(R.id.imageView3);
         editText = findViewById(R.id.editText);
         toggleButton = findViewById(R.id.submitButton);  // Assuming the button's ID is submitButton
