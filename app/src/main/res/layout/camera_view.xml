@@ -11,39 +11,66 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Title "Kamera View" -->
     <TextView
-        android:id="@+id/textViewTitle"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="@string/kameraView"
+        android:textColor="@color/dark_grey"
         android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header" />
 
+    <!-- Camera -->
     <ImageView
-        android:id="@+id/imageViewGPS"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/view"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginTop="124dp"
         android:src="@drawable/dummy_image"
-        app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:contentDescription=""/>
+        app:layout_constraintTop_toTopOf="parent" />
 
+
+
+    <!-- Description "GPS Koordinaten" -->
     <TextView
-        android:id="@+id/textViewGPS"
+        android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
         android:text="@string/coordinates"
-        app:layout_constraintTop_toBottomOf="@id/imageViewGPS"
-        app:layout_constraintStart_toStartOf="@id/imageViewGPS" />
+        android:textColor="@color/dark_grey"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
 
+    <!-- Calibrate Button -->
     <Button
-        android:id="@+id/buttonStartCalibrating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/button"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/light_green"
+        android:insetBottom="0dp"
         android:text="@string/startCalibration"
-        app:layout_constraintTop_toBottomOf="@id/textViewGPS"
-        app:layout_constraintStart_toStartOf="@id/textViewGPS" />
+        android:textAlignment="center"
+        android:textColor="@color/dark_grey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view" />
+
+
 
     <!-- Footer -->
     <include

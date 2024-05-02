@@ -8,59 +8,85 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:layout_width="418dp"
-        android:layout_height="62dp"
-        android:background="#CDCACA"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <!-- Logo -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginTop="124dp"
+        android:src="@drawable/raven"
+        android:background="@drawable/logo_background"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <!-- header -->
-    <include
-        layout="@layout/fragment_header"
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- header -->
-    <include
-        layout="@layout/fragment_header"
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editText"
-        android:inputType="text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/ip_address"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:autofillHints=""
-        />
-
-    <Button
-        android:id="@+id/button"
+    <!-- Title "Birdsaver" -->
+    <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="556dp"
-        android:onClick="submitIpAddress"
-        android:text="@string/submit"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="4dp"
+        android:text="BIRDSAVER"
+        android:textColor="@color/dark_grey"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logo" />
+
+    <!-- Description "Add an IP address" -->
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:text="Add an IP address"
+        android:textColor="@color/dark_grey"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <!-- Input Field -->
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/edit_text_background"
+        android:drawablePadding="8dp"
+        android:hint="@string/ip_address"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textAlignment="center"
+        android:textColorHint="@color/light_grey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/description" />
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/button"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/light_green"
+        android:insetBottom="0dp"
+        android:text="@string/submit"
+        android:textAlignment="center"
+        android:textColor="@color/dark_grey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editText" />
 
     <!-- Footer -->
     <include

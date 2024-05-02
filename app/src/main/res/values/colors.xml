@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="header_brackground">#888888</color>
     <color name="footer_background">#888888</color>
+    <color name="light_green">#C4EBB2</color>
+    <color name="light_grey">#e4e6e3</color>
+    <color name="dark_grey">#60615f</color>
 </resources>
