@@ -28,7 +28,6 @@ public class Home extends AppCompatActivity {
     private ImageView imageView;
     private String ip_address;
     private Button toggleButton;  // Reference to the button
-    private Button homeButton;
     private Handler handler = new Handler();
 
     private TextView textView;
