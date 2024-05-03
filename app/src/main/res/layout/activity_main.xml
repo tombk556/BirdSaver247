@@ -5,7 +5,7 @@
     android:id="@+id/Button1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".IpAddressActivity"
     android:background="@color/white">
 
     <androidx.fragment.app.FragmentContainerView

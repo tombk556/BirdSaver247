@@ -16,7 +16,7 @@ public class FragmentFooter extends AppCompatActivity {
 
     public void navigateToHome(View view){
         // navigate to ip home view
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, IpAddressActivity.class);
         startActivity(intent);
     }
 }

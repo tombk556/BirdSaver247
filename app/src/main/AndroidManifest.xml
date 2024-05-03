@@ -19,7 +19,7 @@
         android:theme="@style/Theme.MNBirdSaver"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".Home"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,12 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DeleteView"/>
-        <activity android:name=".IpAddressView"/>
         <activity android:name=".GPSActivity"/>
         <activity android:name=".ActivityRedPixelDetector"/>
         <activity android:name=".FragmentFooter"/>
-        <activity android:name=".CameraView"/>
+        <activity android:name=".IpAddressActivity"/>
+
     </application>
 
 </manifest>
