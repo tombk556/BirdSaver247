@@ -2,10 +2,13 @@ package htwd.s224.gruppe1.mnbirdsaver;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -177,5 +180,16 @@ public class GPSActivity extends AppCompatActivity {
         if (updateOn) {
             stopLocationUpdates();
         }
+    }
+
+    // use home button to navigate to camera view
+    // TODO replace hardcoded ip address
+    public void navigateToHome(View view){
+        Log.d("CREATION", "nav");
+
+        // navigate to ip home view
+        Intent intent = new Intent(this, Home.class);
+        intent.putExtra("IPADDRESS", "141.56.131.15"); // make sure value for ip address can be used in Home / camera_view
+        startActivity(intent);
     }
 }
