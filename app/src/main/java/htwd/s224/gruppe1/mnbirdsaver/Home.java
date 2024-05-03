@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,7 +28,10 @@ public class Home extends AppCompatActivity {
     private ImageView imageView;
     private String ip_address;
     private Button toggleButton;  // Reference to the button
+    private Button homeButton;
     private Handler handler = new Handler();
+
+    private TextView textView;
     private boolean isDownloading = false;
     private Runnable imageDownloader = new Runnable() {
         @Override
@@ -37,13 +41,14 @@ public class Home extends AppCompatActivity {
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
 
         imageView = findViewById(R.id.view);
+        textView = findViewById(R.id.gpsValue);
+
         requestLocationPermission();  // necessary for GPS
 
         try {
@@ -51,6 +56,8 @@ public class Home extends AppCompatActivity {
             // if not the ip_address is undefined and the app will navigate to ip_address_view
             Intent intent = getIntent();
             ip_address = intent.getStringExtra("IPADDRESS");
+
+            Log.d("CREATION", ip_address);
 
             ip_address.length(); // make sure exception is caused if no ip address is available
 
@@ -119,6 +126,17 @@ public class Home extends AppCompatActivity {
         protected void onPostExecute(Bitmap result) {
             imageView.setImageBitmap(result);
         }
+    }
+
+    // use home button to navigate to camera view - here it goes back to itself
+    // TODO replace hardcoded ip address / disable Button
+    public void navigateToHome(View view){
+        Log.d("CREATION", "nav");
+
+        // navigate to ip home view
+        Intent intent = new Intent(this, Home.class);
+        intent.putExtra("IPADDRESS", "141.56.131.15"); // make sure value for ip address can be used in Home / camera_view
+        startActivity(intent);
     }
 
 }
