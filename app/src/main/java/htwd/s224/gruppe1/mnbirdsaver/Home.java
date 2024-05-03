@@ -128,6 +128,11 @@ public class Home extends AppCompatActivity {
         }
     }
 
+    public void navigateToGPS(View view){
+        Intent intent = new Intent(this, GPSActivity.class);
+        startActivity(intent);
+    }
+
     // use home button to navigate to camera view - here it goes back to itself
     // TODO replace hardcoded ip address / disable Button
     public void navigateToHome(View view){
