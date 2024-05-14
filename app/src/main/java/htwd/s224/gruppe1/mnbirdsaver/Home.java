@@ -1,13 +1,16 @@
 package htwd.s224.gruppe1.mnbirdsaver;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +23,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+
 import java.io.InputStream;
+import java.util.Calendar;
 
 
 public class Home extends AppCompatActivity {
@@ -30,7 +41,13 @@ public class Home extends AppCompatActivity {
     private Button toggleButton;  // Reference to the button
     private Handler handler = new Handler();
 
-    private TextView textView;
+    private static final int PERMISSION_FINE_LOCATION = 99; // irgendwelche Identifikationsnummer
+
+    TextView tv_gps, tv_timestamp;
+    LocationRequest locationRequest;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    LocationCallback locationCallback;
+
     private boolean isDownloading = false;
     private Runnable imageDownloader = new Runnable() {
         @Override
@@ -45,10 +62,38 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
 
-        imageView = findViewById(R.id.view);
-        textView = findViewById(R.id.gpsValue);
-
         requestLocationPermission();  // necessary for GPS
+
+        imageView = findViewById(R.id.view);
+        tv_gps = findViewById(R.id.gpsValue);
+        tv_timestamp = findViewById(R.id.dateValue);
+
+        // GPS (START) -----------------------------------------------------------------------------
+
+        // Initialising FusedLocationProviderClient
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Configuration of LocationRequest
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
+                .setWaitForAccurateLocation(false)   // true???
+                .setMinUpdateIntervalMillis(2000)
+                .setMaxUpdateDelayMillis(4000)
+                .build();
+
+        // Create the Location Callback
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+                    // GUI mit Standortdaten aktualisieren
+                    updateUI_values(location);
+                }
+            }
+        };
+
+
+        // GPS (End) -------------------------------------------------------------------------------
+
 
         try {
             // if user put in an ip address in ip_address_view, the input is fetched here,
@@ -69,7 +114,39 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         }
     }
+    // GPS -----------------------------------------------------------------------------------------
+    private void updateUI_values(Location location) {
+        String gps_coordinates = convertToDMS(location.getLatitude())
+                +"\n"+ convertToDMS(location.getLongitude());
 
+        tv_gps.setText(gps_coordinates);
+        tv_timestamp.setText(Calendar.getInstance().getTime().toString());
+    }
+    @SuppressLint("DefaultLocale")
+    private String convertToDMS(double decimalDegree) {
+        int degree = (int) decimalDegree;
+        double tempMinutes = (decimalDegree - degree) * 60;
+        int minutes = (int) tempMinutes;
+        double seconds = (tempMinutes - minutes) * 60;
+
+        return String.format("%d° %d' %.6f\"", degree, minutes, seconds);
+    }
+
+    private void startLocationUpdates() {
+        tv_gps.setText("Start");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
+        }
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+    }
+
+
+    // Permission ----------------------------
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
@@ -93,17 +170,21 @@ public class Home extends AppCompatActivity {
         }
     }
 
+    // GPS END -------------------------------------------------------------------------------------
+
     public void startButtonClicked(View view){
         Log.d("CameraView", "startButtonClicked() wurde aufgerufen"); // Log-Nachricht hinzufügen
 
-        if (!isDownloading) {
+        if (!isDownloading) {      // Start-Button
             isDownloading = true;
             toggleButton.setText("Stop");
             handler.post(imageDownloader); // start downloading
-        } else {
+            startLocationUpdates();
+        } else {                   // Stop-Button
             isDownloading = false;
             toggleButton.setText("Start");
             handler.removeCallbacks(imageDownloader); // stop downloading
+            stopLocationUpdates();
         }
     }
 
