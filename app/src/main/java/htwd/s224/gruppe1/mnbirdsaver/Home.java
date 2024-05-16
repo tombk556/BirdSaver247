@@ -87,6 +87,7 @@ public class Home extends AppCompatActivity {
                 for (Location location : locationResult.getLocations()) {
                     // GUI mit Standortdaten aktualisieren
                     updateUI_values(location);
+                    // TO-DO: Bild der Kamera fetchen..., Pixel Detector und anschließend Datenabspeichern...
                 }
             }
         };
@@ -116,6 +117,7 @@ public class Home extends AppCompatActivity {
     }
     // GPS -----------------------------------------------------------------------------------------
     private void updateUI_values(Location location) {
+        System.out.println("New Coordiantes");
         String gps_coordinates = convertToDMS(location.getLatitude())
                 +"\n"+ convertToDMS(location.getLongitude());
 
