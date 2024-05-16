@@ -4,10 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,16 +27,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
-import java.io.InputStream;
 import java.util.Calendar;
-
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.util.Log;
-
-import java.util.Random;
 
 public class Home extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -56,13 +44,7 @@ public class Home extends AppCompatActivity {
     LocationCallback locationCallback;
 
     private boolean isDownloading = false;
-    private Runnable imageDownloader = new Runnable() {
-        @Override
-        public void run() {
-            new DownloadImageTask().execute("http://" + ip_address + "/take_picture");
-            handler.postDelayed(this, 2000); // schedule next download in 2 seconds
-        }
-    };
+    private Runnable imageDownloader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +86,15 @@ public class Home extends AppCompatActivity {
 
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
+
+            ImageFetcher imageFetcher = new ImageFetcher(ip_address, imageView);
+            imageDownloader = new Runnable() {
+                @Override
+                public void run() {
+                    imageFetcher.startFetching();
+                    handler.postDelayed(this, 2000);
+                }
+            };
 
         } catch (NullPointerException e) {
             Intent intent = new Intent(this, IpAddressActivity.class);
@@ -173,46 +164,6 @@ public class Home extends AppCompatActivity {
             toggleButton.setText("Start");
             handler.removeCallbacks(imageDownloader);
             stopLocationUpdates();
-        }
-    }
-
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            String urlDisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urlDisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            if (result != null) {
-                result = addRandomDot(result);
-                imageView.setImageBitmap(result);
-            }
-        }
-
-        private Bitmap addRandomDot(Bitmap bitmap) {
-            Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            Canvas canvas = new Canvas(mutableBitmap);
-            Paint paint = new Paint();
-            paint.setColor(Color.RED);  // Set the dot color
-            paint.setStyle(Paint.Style.FILL);
-
-            Random random = new Random();
-            int x = random.nextInt(bitmap.getWidth());
-            int y = random.nextInt(bitmap.getHeight());
-
-            canvas.drawCircle(x, y, 10, paint);  // Draw a dot with radius 10
-
-            return mutableBitmap;
         }
     }
 
