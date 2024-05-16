@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Random;
 
 public class ImageFetcher {
@@ -45,6 +46,10 @@ public class ImageFetcher {
             if (result != null) {
                 result = addRandomDot(result);
                 imageView.setImageBitmap(result);
+                List<PixelDetector.Coordinate> redPixelCoordinates = PixelDetector.isPixelRed(result);
+                for (PixelDetector.Coordinate coord : redPixelCoordinates) {
+                    Log.d("RedPixelLocation", coord.toString());
+                }
             }
         }
 
