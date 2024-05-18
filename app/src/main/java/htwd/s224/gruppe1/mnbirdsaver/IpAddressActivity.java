@@ -28,8 +28,6 @@ public class IpAddressActivity extends AppCompatActivity {
     // use home button to navigate to camera view
     // TODO replace hardcoded ip address
     public void navigateToHome(View view){
-        Log.d("CREATION", "nav");
-
         // navigate to ip home view
         Intent intent = new Intent(this, Home.class);
         intent.putExtra("IPADDRESS", "141.56.131.15"); // make sure value for ip address can be used in Home / camera_view

@@ -30,6 +30,7 @@
         <activity android:name=".GPSActivity"/>
         <activity android:name=".ActivityRedPixelDetector"/>
         <activity android:name=".IpAddressActivity"/>
+        <activity android:name=".CameraViewActivity"/>
 
     </application>
 
