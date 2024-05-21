@@ -27,8 +27,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MEASUREMENT_ID = "id";
     public static final String COLUMN_PIXEL_X = "pixel_x";
     public static final String COLUMN_PIXEL_Y = "pixel_y";
-    public static final String COLUMN_GPS_X = "gps_x";
-    public static final String COLUMN_GPS_Y = "gps_y";
+    public static final String COLUMN_LONGITUDE = "longitude";
+    public static final String COLUMN_LATITUDE = "latitude";
     public static final String COLUMN_WIND_TURBINE_ID_FK = "wind_turbine_id";
 
     // View Name
@@ -47,15 +47,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_WIND_TURBINE_NAME + " TEXT NOT NULL, "
             + COLUMN_WIND_TURBINE_IP_ADDRESS + " TEXT NOT NULL" + ")";
 
-
-
     // SQL-Befehl zum Erstellen der Tabelle measurement
     private static final String CREATE_TABLE_MEASUREMENT = "CREATE TABLE " + TABLE_MEASUREMENT + "("
             + COLUMN_MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_PIXEL_X + " INTEGER NOT NULL, "
             + COLUMN_PIXEL_Y + " INTEGER NOT NULL, "
-            + COLUMN_GPS_X + " DOUBLE NOT NULL, "
-            + COLUMN_GPS_Y + " DOUBLE NOT NULL, "
+            + COLUMN_LONGITUDE + " DOUBLE NOT NULL, "
+            + COLUMN_LATITUDE + " DOUBLE NOT NULL, "
             + COLUMN_WIND_TURBINE_ID_FK + " INTEGER NOT NULL, "
             + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "));";
 
@@ -68,8 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TABLE_MEASUREMENT + "." + COLUMN_MEASUREMENT_ID + " AS measurement_id, "
             + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + " AS pixel_x, "
             + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " AS pixel_y, "
-            + TABLE_MEASUREMENT + "." + COLUMN_GPS_X + " AS gps_x, "
-            + TABLE_MEASUREMENT + "." + COLUMN_GPS_Y + " AS gps_y "
+            + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + " AS longitude, "
+            + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + " AS latitude "
             + "FROM " + TABLE_MEASUREMENT + " "
             + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + ";";
 
@@ -115,13 +113,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Methode zum Einfügen einer Messung
-    public void addMeasurement(int pixelX, int pixelY, double gpsX, double gpsY, int windTurbineId) {
+    public void addMeasurement(int pixelX, int pixelY, double longitude, double latitude, int windTurbineId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_PIXEL_X, pixelX);
         values.put(COLUMN_PIXEL_Y, pixelY);
-        values.put(COLUMN_GPS_X, gpsX);
-        values.put(COLUMN_GPS_Y, gpsY);
+        values.put(COLUMN_LONGITUDE, longitude);
+        values.put(COLUMN_LATITUDE, latitude);
         values.put(COLUMN_WIND_TURBINE_ID_FK, windTurbineId);
 
         long result = db.insert(TABLE_MEASUREMENT, null, values);

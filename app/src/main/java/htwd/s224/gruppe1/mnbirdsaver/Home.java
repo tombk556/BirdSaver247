@@ -47,7 +47,7 @@ public class Home extends AppCompatActivity {
 
     private static final int PERMISSION_FINE_LOCATION = 99;
 
-    TextView tv_gps, tv_timestamp;
+    TextView tv_gps, tv_timestamp, tv_name;
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationCallback locationCallback;
@@ -56,8 +56,8 @@ public class Home extends AppCompatActivity {
     DatabaseHelper databaseHelper;
     SQLiteDatabase db;
 
+    private int lastWindTurbineId;
 
-    private long lastWindTurbineId;
 
     private boolean isDownloading = false;
     private Runnable imageDownloader;
@@ -73,6 +73,7 @@ public class Home extends AppCompatActivity {
         imageView = findViewById(R.id.view);
         tv_gps = findViewById(R.id.gpsValue);
         tv_timestamp = findViewById(R.id.dateValue);
+        tv_name = findViewById(R.id.name);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -87,6 +88,7 @@ public class Home extends AppCompatActivity {
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
                     updateUI_values(location);
+                    insertData(location);
                 }
             }
         };
@@ -101,27 +103,20 @@ public class Home extends AppCompatActivity {
         //resetDatabase();
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
-        lastWindTurbineId = databaseHelper.getLastWindTurbineId();
+        lastWindTurbineId = (int) databaseHelper.getLastWindTurbineId();
 
         if (lastWindTurbineId == 0) {
             Intent intent = new Intent(this, IpAddressActivity.class);
             startActivity(intent);
+            finish();
+            return;
         }
+        tv_name.setText(databaseHelper.getWindTurbineName(lastWindTurbineId));
+
+        ip_address =  databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
 
         Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
-
-        ip_address =  databaseHelper.getWindTurbineIpAddress((int)lastWindTurbineId);
-
         Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
-
-        //Toast.makeText(this, "Name: " +  databaseHelper.getWindTurbineName((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
-
-
-        // Beispiel-Daten einfügen
-        insertSampleData();
-
-        Toast.makeText(this, "new IP: " + databaseHelper.getWindTurbineIpAddress((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "Name: " +  databaseHelper.getWindTurbineName((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
 
 
         try {
@@ -163,6 +158,7 @@ public class Home extends AppCompatActivity {
         Toast.makeText(this, "Daten eingefügt", Toast.LENGTH_LONG).show();
     }
 
+
     private void resetDatabase() {
         databaseHelper.resetDatabase();
         Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
@@ -179,6 +175,13 @@ public class Home extends AppCompatActivity {
         String gps_coordinates = convertToDMS(location.getLatitude()) + "\n" + convertToDMS(location.getLongitude());
         tv_gps.setText(gps_coordinates);
         tv_timestamp.setText(Calendar.getInstance().getTime().toString());
+    }
+
+    private void insertData(Location location) {
+        double gps_long= location.getLongitude();
+        double gps_lat = location.getLatitude();
+        databaseHelper.addMeasurement(100, 200, gps_long, gps_lat, lastWindTurbineId);
+
     }
 
     @SuppressLint("DefaultLocale")
