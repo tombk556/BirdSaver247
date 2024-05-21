@@ -3,7 +3,9 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,8 +31,15 @@ import com.google.android.gms.location.Priority;
 
 import java.util.Calendar;
 
+// Importiere den DatabaseHelper aus dem Unterpaket
+import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
+
 public class Home extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    private static final String WIND_TURBINE_PREFS = "WindTurbinePrefs";  // Konstanten für den Dateinamen
+    private static final String LAST_WIND_TURBINE_ID = "LastWindTurbineId";  // Konstanten für den Schlüssel
+
     private ImageView imageView;
     private String ip_address;
     private Button toggleButton;
@@ -43,8 +52,16 @@ public class Home extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationCallback locationCallback;
 
+
+    DatabaseHelper databaseHelper;
+    SQLiteDatabase db;
+
+
+    private long lastWindTurbineId;
+
     private boolean isDownloading = false;
     private Runnable imageDownloader;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,16 +91,50 @@ public class Home extends AppCompatActivity {
             }
         };
 
+        // DatabaseHelper initialisieren
+        databaseHelper = new DatabaseHelper(this);
+
+        // Datenbank öffnen
+        db = databaseHelper.getWritableDatabase();
+
+        // Datenbank zurücksetzen
+        //resetDatabase();
+
+        // Letzte WindTurbine_ID abrufen, Standardwert ist 0
+        lastWindTurbineId = databaseHelper.getLastWindTurbineId();
+
+        if (lastWindTurbineId == 0) {
+            Intent intent = new Intent(this, IpAddressActivity.class);
+            startActivity(intent);
+        }
+
+        Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
+
+        ip_address =  databaseHelper.getWindTurbineIpAddress((int)lastWindTurbineId);
+
+        Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
+
+        //Toast.makeText(this, "Name: " +  databaseHelper.getWindTurbineName((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
+
+
+        // Beispiel-Daten einfügen
+        insertSampleData();
+
+        Toast.makeText(this, "new IP: " + databaseHelper.getWindTurbineIpAddress((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Name: " +  databaseHelper.getWindTurbineName((int)lastWindTurbineId), Toast.LENGTH_LONG).show();
+
+
         try {
-            Intent intent = getIntent();
-            ip_address = intent.getStringExtra("IPADDRESS");
+            //Intent intent = getIntent();
+            //ip_address = intent.getStringExtra("IPADDRESS");
 
-            Log.d("CREATION", ip_address);
+            //Log.d("CREATION", ip_address);
 
+            /*
             if (ip_address == null || ip_address.isEmpty()) {
                 throw new NullPointerException("IP address is not provided");
             }
-
+            */
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
@@ -100,6 +151,27 @@ public class Home extends AppCompatActivity {
             Intent intent = new Intent(this, IpAddressActivity.class);
             startActivity(intent);
         }
+    }
+
+    private void insertSampleData() {
+        // Füge Windräder ein und erhalte die IDs
+        long windTurbineId1 = databaseHelper.addWindTurbine("Windrad Test X", "141.56.131.15");
+
+        // Füge Messungen ein
+        databaseHelper.addMeasurement(100, 200, 12.345, 67.890, (int) windTurbineId1);
+
+        Toast.makeText(this, "Daten eingefügt", Toast.LENGTH_LONG).show();
+    }
+
+    private void resetDatabase() {
+        databaseHelper.resetDatabase();
+        Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
+    }
+
+    public void deleteDatabase() {
+        // Datenbank löschen
+        databaseHelper.deleteDatabase();
+        Toast.makeText(this, "Datenbank gelöscht", Toast.LENGTH_LONG).show();
     }
 
     private void updateUI_values(Location location) {
@@ -179,4 +251,13 @@ public class Home extends AppCompatActivity {
         intent.putExtra("IPADDRESS", "141.56.131.15");
         startActivity(intent);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Datenbank schließen
+        db.close();
+    }
+
+
 }
