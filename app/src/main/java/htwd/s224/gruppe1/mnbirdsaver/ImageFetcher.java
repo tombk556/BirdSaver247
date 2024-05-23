@@ -16,6 +16,7 @@ import java.util.Random;
 public class ImageFetcher {
     private String ip_address;
     private ImageView imageView;
+    private List<PixelDetector.Coordinate> redPixelCoordinates;
 
     public ImageFetcher(String ip_address, ImageView imageView) {
         this.ip_address = ip_address;
@@ -24,6 +25,10 @@ public class ImageFetcher {
 
     public void startFetching() {
         new DownloadImageTask().execute("http://" + ip_address + "/take_picture");
+    }
+
+    public List<PixelDetector.Coordinate> getRedPixelCoordinates() {
+        return redPixelCoordinates;
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -46,9 +51,14 @@ public class ImageFetcher {
             if (result != null) {
                 result = addRandomDot(result);
                 imageView.setImageBitmap(result);
-                List<PixelDetector.Coordinate> redPixelCoordinates = PixelDetector.isPixelRed(result);
+                redPixelCoordinates = PixelDetector.isPixelRed(result);
                 for (PixelDetector.Coordinate coord : redPixelCoordinates) {
-                    Log.d("RedPixelLocation", coord.toString());
+                    int x = coord.getX();
+                    int y = coord.getY();
+                    Log.d("X: " + x, "X");
+
+                    String coordiantes = coord.toString();
+                    Log.d("RedPixelLocation", coordiantes);
                 }
             }
         }

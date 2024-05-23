@@ -29,7 +29,10 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
+import java.util.List;
 
 // Importiere den DatabaseHelper aus dem Unterpaket
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
@@ -58,7 +61,7 @@ public class Home extends AppCompatActivity {
 
     private int lastWindTurbineId;
 
-
+    ImageFetcher imageFetcher;
     private boolean isDownloading = false;
     private Runnable imageDownloader;
 
@@ -133,7 +136,7 @@ public class Home extends AppCompatActivity {
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            ImageFetcher imageFetcher = new ImageFetcher(ip_address, imageView);
+            imageFetcher = new ImageFetcher(ip_address, imageView);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -178,6 +181,8 @@ public class Home extends AppCompatActivity {
     }
 
     private void insertData(Location location) {
+        List pixel_coord  = imageFetcher.getRedPixelCoordinates();
+
         double gps_long= location.getLongitude();
         double gps_lat = location.getLatitude();
         databaseHelper.addMeasurement(100, 200, gps_long, gps_lat, lastWindTurbineId);
