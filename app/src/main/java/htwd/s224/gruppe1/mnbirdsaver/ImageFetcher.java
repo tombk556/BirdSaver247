@@ -17,10 +17,16 @@ public class ImageFetcher {
     private String ip_address;
     private ImageView imageView;
     private List<PixelDetector.Coordinate> redPixelCoordinates;
+    private RedPixelCoordinatesListener listener;
 
-    public ImageFetcher(String ip_address, ImageView imageView) {
+    public interface RedPixelCoordinatesListener {
+        void onRedPixelCoordinatesDetected(int x, int y);
+    }
+
+    public ImageFetcher(String ip_address, ImageView imageView, RedPixelCoordinatesListener listener) {
         this.ip_address = ip_address;
         this.imageView = imageView;
+        this.listener = listener;
     }
 
     public void startFetching() {
@@ -52,13 +58,16 @@ public class ImageFetcher {
                 result = addRandomDot(result);
                 imageView.setImageBitmap(result);
                 redPixelCoordinates = PixelDetector.isPixelRed(result);
-                for (PixelDetector.Coordinate coord : redPixelCoordinates) {
+                if (!redPixelCoordinates.isEmpty()) {
+                    PixelDetector.Coordinate coord = redPixelCoordinates.get(0);
                     int x = coord.getX();
                     int y = coord.getY();
                     Log.d("X: " + x, "X");
+                    Log.d("RedPixelLocation", coord.toString());
 
-                    String coordiantes = coord.toString();
-                    Log.d("RedPixelLocation", coordiantes);
+                    if (listener != null) {
+                        listener.onRedPixelCoordinatesDetected(x, y);
+                    }
                 }
             }
         }

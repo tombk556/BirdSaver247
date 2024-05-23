@@ -3,7 +3,6 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -29,15 +28,12 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
-import org.json.JSONObject;
-
 import java.util.Calendar;
-import java.util.List;
 
 // Importiere den DatabaseHelper aus dem Unterpaket
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private static final String WIND_TURBINE_PREFS = "WindTurbinePrefs";  // Konstanten für den Dateinamen
@@ -55,7 +51,6 @@ public class Home extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationCallback locationCallback;
 
-
     DatabaseHelper databaseHelper;
     SQLiteDatabase db;
 
@@ -65,6 +60,8 @@ public class Home extends AppCompatActivity {
     private boolean isDownloading = false;
     private Runnable imageDownloader;
 
+    private int redPixelX = -1;
+    private int redPixelY = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,22 +118,11 @@ public class Home extends AppCompatActivity {
         Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
         Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
 
-
         try {
-            //Intent intent = getIntent();
-            //ip_address = intent.getStringExtra("IPADDRESS");
-
-            //Log.d("CREATION", ip_address);
-
-            /*
-            if (ip_address == null || ip_address.isEmpty()) {
-                throw new NullPointerException("IP address is not provided");
-            }
-            */
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            imageFetcher = new ImageFetcher(ip_address, imageView);
+            imageFetcher = new ImageFetcher(ip_address, imageView, this);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -161,7 +147,6 @@ public class Home extends AppCompatActivity {
         Toast.makeText(this, "Daten eingefügt", Toast.LENGTH_LONG).show();
     }
 
-
     private void resetDatabase() {
         databaseHelper.resetDatabase();
         Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
@@ -181,12 +166,13 @@ public class Home extends AppCompatActivity {
     }
 
     private void insertData(Location location) {
-        List pixel_coord  = imageFetcher.getRedPixelCoordinates();
-
         double gps_long= location.getLongitude();
         double gps_lat = location.getLatitude();
-        databaseHelper.addMeasurement(100, 200, gps_long, gps_lat, lastWindTurbineId);
 
+        // Add the red pixel coordinates to the database
+        if (redPixelX != -1 && redPixelY != -1) {
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId);
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -267,5 +253,9 @@ public class Home extends AppCompatActivity {
         db.close();
     }
 
-
+    @Override
+    public void onRedPixelCoordinatesDetected(int x, int y) {
+        redPixelX = x;
+        redPixelY = y;
+    }
 }
