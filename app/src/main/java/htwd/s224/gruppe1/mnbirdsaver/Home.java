@@ -77,10 +77,11 @@ public class Home extends AppCompatActivity {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
-                .setWaitForAccurateLocation(false)
-                .setMinUpdateIntervalMillis(2000)
-                .setMaxUpdateDelayMillis(4000)
+
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+                .setWaitForAccurateLocation(true)
+                .setMinUpdateIntervalMillis(5000)
+                .setMaxUpdateDelayMillis(10000)
                 .build();
 
         locationCallback = new LocationCallback() {
