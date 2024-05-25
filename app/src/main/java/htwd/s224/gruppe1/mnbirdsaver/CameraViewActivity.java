@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -34,7 +35,6 @@ import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
 
     private ImageView imageView;
     private String ip_address;
@@ -59,6 +59,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
     private int redPixelX = -1;
     private int redPixelY = -1;
+    private boolean includeArcDot;
+    private SwitchCompat simOnOffSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +73,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         tv_gps = findViewById(R.id.gpsValue);
         tv_timestamp = findViewById(R.id.dateValue);
         tv_name = findViewById(R.id.name);
+        simOnOffSwitch = findViewById(R.id.SimOnOff);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-
 
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setWaitForAccurateLocation(true)
@@ -97,9 +99,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         // Datenbank öffnen
         db = databaseHelper.getWritableDatabase();
 
-        // Datenbank zurücksetzen
-        //resetDatabase();
-
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
         lastWindTurbineId = (int) databaseHelper.getLastWindTurbineId();
 
@@ -111,7 +110,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
         tv_name.setText(databaseHelper.getWindTurbineName(lastWindTurbineId));
 
-        ip_address =  databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
+        ip_address = databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
 
         Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
         Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
@@ -120,7 +119,21 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            imageFetcher = new ImageFetcher(ip_address, imageView, this, true);
+            // Set initial state of includeArcDot
+            includeArcDot = true;
+
+            // Initialize the switch with the current state
+            simOnOffSwitch.setChecked(includeArcDot);
+
+            // Set up the switch listener
+            simOnOffSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                includeArcDot = isChecked;
+                initializeImageFetcher();
+            });
+
+            // Initialize the ImageFetcher with the initial state of includeArcDot
+            initializeImageFetcher();
+
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -135,7 +148,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
-
     private void resetDatabase() {
         databaseHelper.resetDatabase();
         Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
@@ -149,14 +161,14 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     }
 
     private void insertData(Location location) {
-        double gps_long= location.getLongitude();
+        double gps_long = location.getLongitude();
         double gps_lat = location.getLatitude();
 
         // Add the red pixel coordinates to the database
         if (redPixelX != -1 && redPixelY != -1) {
             databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId);
             redPixelX = -1;
-            redPixelY =-1;
+            redPixelY = -1;
         }
     }
 
@@ -240,5 +252,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     public void onRedPixelCoordinatesDetected(int x, int y) {
         redPixelX = x;
         redPixelY = y;
+    }
+
+    private void initializeImageFetcher() {
+        imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
     }
 }

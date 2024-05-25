@@ -21,4 +21,8 @@
     <string name="start">Start</string>
     <string name="_141_56_131_15">141.56.131.15</string>
     <string name="goOn">Continue</string>
+    <string name="simulation">Simulation</string>
+    <string name="sim_on_off">Sim On/Off</string>
+    <string name="Simulation">Sim On/Off</string>
+    <string name="Sim">Simulation</string>
 </resources>
