@@ -120,7 +120,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            imageFetcher = new ImageFetcher(ip_address, imageView, this);
+            imageFetcher = new ImageFetcher(ip_address, imageView, this, true);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
