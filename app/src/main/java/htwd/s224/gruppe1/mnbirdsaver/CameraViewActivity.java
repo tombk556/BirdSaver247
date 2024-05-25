@@ -155,6 +155,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         // Add the red pixel coordinates to the database
         if (redPixelX != -1 && redPixelY != -1) {
             databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId);
+            redPixelX = -1;
+            redPixelY =-1;
         }
     }
 
