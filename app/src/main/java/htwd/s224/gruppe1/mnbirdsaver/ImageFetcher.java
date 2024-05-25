@@ -10,8 +10,8 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class ImageFetcher {
     private String ip_address;
@@ -19,14 +19,20 @@ public class ImageFetcher {
     private List<PixelDetector.Coordinate> redPixelCoordinates;
     private RedPixelCoordinatesListener listener;
 
+    private boolean includeArcDot;
+    private float currentAngle = 0.0f; // Start angle in degrees
+    private static final float ANGLE_INCREMENT = 10.0f; // Angle increment in degrees
+
     public interface RedPixelCoordinatesListener {
         void onRedPixelCoordinatesDetected(int x, int y);
     }
 
-    public ImageFetcher(String ip_address, ImageView imageView, RedPixelCoordinatesListener listener) {
+    public ImageFetcher(String ip_address, ImageView imageView, RedPixelCoordinatesListener listener, boolean includeArcDot) {
         this.ip_address = ip_address;
         this.imageView = imageView;
         this.listener = listener;
+        this.includeArcDot = includeArcDot;
+        this.redPixelCoordinates = new ArrayList<>();
     }
 
     public void startFetching() {
@@ -55,7 +61,9 @@ public class ImageFetcher {
         @Override
         protected void onPostExecute(Bitmap result) {
             if (result != null) {
-                result = addRandomDot(result);
+                if (includeArcDot) {
+                    result = addArcDot(result);
+                }
                 imageView.setImageBitmap(result);
                 redPixelCoordinates = PixelDetector.isPixelRed(result);
                 if (!redPixelCoordinates.isEmpty()) {
@@ -72,18 +80,29 @@ public class ImageFetcher {
             }
         }
 
-        private Bitmap addRandomDot(Bitmap bitmap) {
+        private Bitmap addArcDot(Bitmap bitmap) {
+            int imageWidth = bitmap.getWidth();
+            int imageHeight = bitmap.getHeight();
+
+            float ARC_CENTER_X = imageWidth / 2.0f; // Center X of the image
+            float ARC_CENTER_Y = imageHeight / 2.0f; // Center Y of the image
+            float ARC_RADIUS = Math.min(imageWidth, imageHeight) / 2.0f; // Adjust radius to fit the image
+
             Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             Canvas canvas = new Canvas(mutableBitmap);
             Paint paint = new Paint();
             paint.setColor(Color.RED);  // Set the dot color
             paint.setStyle(Paint.Style.FILL);
 
-            Random random = new Random();
-            int x = random.nextInt(bitmap.getWidth());
-            int y = random.nextInt(bitmap.getHeight());
+            // Calculate the new dot position in arc format
+            float radians = (float) Math.toRadians(currentAngle);
+            int x = (int) (ARC_CENTER_X + ARC_RADIUS * Math.cos(radians));
+            int y = (int) (ARC_CENTER_Y + ARC_RADIUS * Math.sin(radians));
 
             canvas.drawCircle(x, y, 10, paint);  // Draw a dot with radius 10
+
+            // Increment the angle for the next dot
+            currentAngle += ANGLE_INCREMENT;
 
             return mutableBitmap;
         }

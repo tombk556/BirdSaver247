@@ -121,7 +121,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            imageFetcher = new ImageFetcher(ip_address, imageView, this);
+            imageFetcher = new ImageFetcher(ip_address, imageView,this, true);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
