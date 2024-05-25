@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
@@ -29,6 +32,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PIXEL_Y = "pixel_y";
     public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_LATITUDE = "latitude";
+
+    public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_WIND_TURBINE_ID_FK = "wind_turbine_id";
 
     // View Name
@@ -55,6 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_LONGITUDE + " DOUBLE NOT NULL, "
             + COLUMN_LATITUDE + " DOUBLE NOT NULL, "
             + COLUMN_WIND_TURBINE_ID_FK + " INTEGER NOT NULL, "
+            + COLUMN_TIMESTAMP + " TEXT,"
             + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "));";
 
     // SQL-Befehl zum Erstellen der View
@@ -113,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Methode zum Einfügen einer Messung
-    public void addMeasurement(int pixelX, int pixelY, double longitude, double latitude, int windTurbineId) {
+    public void addMeasurement(int pixelX, int pixelY, double longitude, double latitude, int windTurbineId, String timestamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_PIXEL_X, pixelX);
@@ -121,6 +127,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_LONGITUDE, longitude);
         values.put(COLUMN_LATITUDE, latitude);
         values.put(COLUMN_WIND_TURBINE_ID_FK, windTurbineId);
+        values.put(COLUMN_TIMESTAMP, timestamp);
 
         long result = db.insert(TABLE_MEASUREMENT, null, values);
         if (result == -1) {
@@ -208,6 +215,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return windTurbineName;
     }
+
+
+    public String getLocalTimestamp() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(calendar.getTimeZone()); // Setzt die Zeitzone des SimpleDateFormat auf die Zeitzone des Kalenders
+        return dateFormat.format(calendar.getTime());
+    }
+
 
 
 }

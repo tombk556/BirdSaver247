@@ -151,12 +151,15 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     private void insertData(Location location) {
         double gps_long= location.getLongitude();
         double gps_lat = location.getLatitude();
+        String timestamp = Calendar.getInstance().getTime().toString();
 
         // Add the red pixel coordinates to the database
         if (redPixelX != -1 && redPixelY != -1) {
-            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId);
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId, timestamp);
             redPixelX = -1;
             redPixelY =-1;
+        } else {
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId, timestamp);
         }
     }
 
