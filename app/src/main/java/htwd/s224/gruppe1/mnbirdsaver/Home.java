@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -96,6 +97,43 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             Intent intent = new Intent(this, IpAddressActivity.class);
             startActivity(intent);
         }
+
+        testTransformer();
+    }
+
+    // TODO replace double[][] arrays with data base calls
+    public void testTransformer(){
+        double[][] gpsCoordinates = {
+                {37.7749, -122.4194},
+                {34.0522, -118.2437},
+                {40.7128, -74.0060},
+                // Weitere GPS-Koordinaten hier hinzufügen
+        };
+
+        double[][] pixelCoordinates = {
+                {512, 256},
+                {600, 300},
+                {800, 400},
+                // Entsprechende Pixelkoordinaten hier hinzufügen
+        };
+
+        CoordinateTransform transformer = new CoordinateTransform(gpsCoordinates, pixelCoordinates);
+
+        // Beispiel GPS-Koordinaten
+        /*double lat = 37.7749;
+        double lon = -122.4194;
+
+        // Umrechnung von GPS zu Pixel
+        double[] pixel = transformer.gpsToPixel(lat, lon);
+        Log.d("CALCULATION 1: ", "Pixel: x=" + pixel[0] + ", y=" + pixel[1]);*/
+
+        // Beispiel Pixelkoordinaten für Umrechnung zurück zu GPS
+        double x = 512;
+        double y = 256;
+
+        // Umrechnung von Pixel zu GPS
+        double[] gps = transformer.pixelToGps(x, y);
+        Log.d("CALCULATION 2: ", "GPS: lat=" + gps[0] + ", lon=" + gps[1]);
     }
 
     private void requestLocationPermission() {
