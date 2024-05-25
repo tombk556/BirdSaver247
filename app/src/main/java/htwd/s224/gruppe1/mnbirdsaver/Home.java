@@ -37,8 +37,6 @@ import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 public class Home extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
-    private static final String WIND_TURBINE_PREFS = "WindTurbinePrefs";  // Konstanten für den Dateinamen
-    private static final String LAST_WIND_TURBINE_ID = "LastWindTurbineId";  // Konstanten für den Schlüssel
 
     private ImageView imageView;
     private String ip_address;
@@ -121,16 +119,6 @@ public class Home extends AppCompatActivity {
 
 
         try {
-            //Intent intent = getIntent();
-            //ip_address = intent.getStringExtra("IPADDRESS");
-
-            //Log.d("CREATION", ip_address);
-
-            /*
-            if (ip_address == null || ip_address.isEmpty()) {
-                throw new NullPointerException("IP address is not provided");
-            }
-            */
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
@@ -149,26 +137,11 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    private void insertSampleData() {
-        // Füge Windräder ein und erhalte die IDs
-        long windTurbineId1 = databaseHelper.addWindTurbine("Windrad Test X", "141.56.131.15");
-
-        // Füge Messungen ein
-        databaseHelper.addMeasurement(100, 200, 12.345, 67.890, (int) windTurbineId1);
-
-        Toast.makeText(this, "Daten eingefügt", Toast.LENGTH_LONG).show();
-    }
 
 
     private void resetDatabase() {
         databaseHelper.resetDatabase();
         Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
-    }
-
-    public void deleteDatabase() {
-        // Datenbank löschen
-        databaseHelper.deleteDatabase();
-        Toast.makeText(this, "Datenbank gelöscht", Toast.LENGTH_LONG).show();
     }
 
     private void updateUI_values(Location location) {
