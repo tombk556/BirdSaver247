@@ -17,7 +17,15 @@ public class PixelDetector {
 
         @Override
         public String toString() {
-            return "{\"x\": " + x + ", \"y\": " + y + "}";
+            return "{\"x\": " + this.x + ", \"y\": " + this.y + "}";
+        }
+
+        public int getX(){
+            return this.x;
+        }
+
+        public int getY(){
+            return  this.y;
         }
     }
 

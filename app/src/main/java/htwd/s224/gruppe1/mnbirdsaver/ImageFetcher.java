@@ -16,14 +16,25 @@ import java.util.Random;
 public class ImageFetcher {
     private String ip_address;
     private ImageView imageView;
+    private List<PixelDetector.Coordinate> redPixelCoordinates;
+    private RedPixelCoordinatesListener listener;
 
-    public ImageFetcher(String ip_address, ImageView imageView) {
+    public interface RedPixelCoordinatesListener {
+        void onRedPixelCoordinatesDetected(int x, int y);
+    }
+
+    public ImageFetcher(String ip_address, ImageView imageView, RedPixelCoordinatesListener listener) {
         this.ip_address = ip_address;
         this.imageView = imageView;
+        this.listener = listener;
     }
 
     public void startFetching() {
         new DownloadImageTask().execute("http://" + ip_address + "/take_picture");
+    }
+
+    public List<PixelDetector.Coordinate> getRedPixelCoordinates() {
+        return redPixelCoordinates;
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -46,9 +57,17 @@ public class ImageFetcher {
             if (result != null) {
                 result = addRandomDot(result);
                 imageView.setImageBitmap(result);
-                List<PixelDetector.Coordinate> redPixelCoordinates = PixelDetector.isPixelRed(result);
-                for (PixelDetector.Coordinate coord : redPixelCoordinates) {
+                redPixelCoordinates = PixelDetector.isPixelRed(result);
+                if (!redPixelCoordinates.isEmpty()) {
+                    PixelDetector.Coordinate coord = redPixelCoordinates.get(0);
+                    int x = coord.getX();
+                    int y = coord.getY();
+                    Log.d("X: " + x, "X");
                     Log.d("RedPixelLocation", coord.toString());
+
+                    if (listener != null) {
+                        listener.onRedPixelCoordinatesDetected(x, y);
+                    }
                 }
             }
         }

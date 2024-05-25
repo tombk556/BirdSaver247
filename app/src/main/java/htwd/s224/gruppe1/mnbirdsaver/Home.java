@@ -3,7 +3,6 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -34,7 +33,7 @@ import java.util.Calendar;
 // Importiere den DatabaseHelper aus dem Unterpaket
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
 
@@ -50,16 +49,17 @@ public class Home extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationCallback locationCallback;
 
-
     DatabaseHelper databaseHelper;
     SQLiteDatabase db;
 
     private int lastWindTurbineId;
 
-
+    ImageFetcher imageFetcher;
     private boolean isDownloading = false;
     private Runnable imageDownloader;
 
+    private int redPixelX = -1;
+    private int redPixelY = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +117,11 @@ public class Home extends AppCompatActivity {
         Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
         Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
 
-
         try {
             toggleButton = findViewById(R.id.submitButton);
             toggleButton.setText("Start");
 
-            ImageFetcher imageFetcher = new ImageFetcher(ip_address, imageView);
+            imageFetcher = new ImageFetcher(ip_address, imageView, this);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -136,7 +135,6 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
 
 
     private void resetDatabase() {
@@ -154,8 +152,11 @@ public class Home extends AppCompatActivity {
     private void insertData(Location location) {
         double gps_long= location.getLongitude();
         double gps_lat = location.getLatitude();
-        databaseHelper.addMeasurement(100, 200, gps_long, gps_lat, lastWindTurbineId);
 
+        // Add the red pixel coordinates to the database
+        if (redPixelX != -1 && redPixelY != -1) {
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId);
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -236,5 +237,9 @@ public class Home extends AppCompatActivity {
         db.close();
     }
 
-
+    @Override
+    public void onRedPixelCoordinatesDetected(int x, int y) {
+        redPixelX = x;
+        redPixelY = y;
+    }
 }
