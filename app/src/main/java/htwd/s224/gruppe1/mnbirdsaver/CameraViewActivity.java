@@ -83,10 +83,23 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
                 .setMaxUpdateDelayMillis(10000)
                 .build();
 
-        locationCallback = new LocationCallback() {
+        /*locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
+                    updateUI_values(location);
+                    insertData(location);
+                }
+            }
+        };
+
+         */
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
                     updateUI_values(location);
                     insertData(location);
                 }
@@ -98,6 +111,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         // Datenbank öffnen
         db = databaseHelper.getWritableDatabase();
+
+
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
         lastWindTurbineId = (int) databaseHelper.getLastWindTurbineId();

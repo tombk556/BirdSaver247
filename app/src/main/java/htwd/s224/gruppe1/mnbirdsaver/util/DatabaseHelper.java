@@ -38,6 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // View Name
     public static final String VIEW_MEASUREMENT_WITH_WIND_TURBINE = "wind_turbine_measurement";
+    public static final String VIEW_AVERAGE_COORDS = "wind_turbine_measurement_avg";
 
     private Context context;
 
@@ -77,6 +78,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "FROM " + TABLE_MEASUREMENT + " "
             + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + ";";
 
+    private static final String CREATE_AVERAGE_COORDS_VIEW = "CREATE VIEW " + VIEW_AVERAGE_COORDS + " AS " +
+            "SELECT " +
+            TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, " +
+            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, " +
+            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS avg_longitude, " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS avg_latitude " +
+            "FROM " + TABLE_MEASUREMENT + " " +
+            "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " " +
+            "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
+
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -93,10 +109,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // View erstellen
         Log.d(TAG, "Creating view");
         db.execSQL(CREATE_VIEW_MEASUREMENT_WITH_WIND_TURBINE);
+        db.execSQL(CREATE_AVERAGE_COORDS_VIEW);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
         resetDatabase(db);
     }
 
@@ -159,6 +177,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_MEASUREMENT_WITH_WIND_TURBINE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEASUREMENT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WIND_TURBINE);
+        db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
         onCreate(db);
 
 
