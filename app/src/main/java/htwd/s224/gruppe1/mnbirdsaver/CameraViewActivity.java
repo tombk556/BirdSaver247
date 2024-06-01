@@ -35,6 +35,7 @@ import java.util.Calendar;
 
 import htwd.s224.gruppe1.mnbirdsaver.legacy.GPSActivity;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
+import htwd.s224.gruppe1.mnbirdsaver.util.ExportCSVHelper;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -52,9 +53,11 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     LocationCallback locationCallback;
 
     DatabaseHelper databaseHelper;
+    ExportCSVHelper exportCSVHelper;
     SQLiteDatabase db;
 
-    private int lastWindTurbineId;
+    private int currentWindTurbineId;
+    private String currentWindTurbineName;
 
     ImageFetcher imageFetcher;
     private boolean isDownloading = false;
@@ -102,6 +105,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         // DatabaseHelper initialisieren
         databaseHelper = new DatabaseHelper(this);
+        exportCSVHelper = new ExportCSVHelper(this, databaseHelper);
 
         // Datenbank öffnen
         db = databaseHelper.getWritableDatabase();
@@ -109,17 +113,18 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
-        lastWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
+        currentWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
 
-        if (lastWindTurbineId == 0) {
+        if (currentWindTurbineId == 0) {
             Intent intent = new Intent(this, IpAddressActivity.class);
             startActivity(intent);
             finish();
             return;
         }
-        tv_name.setText(databaseHelper.getWindTurbineName(lastWindTurbineId));
+        currentWindTurbineName = databaseHelper.getWindTurbineName(currentWindTurbineId);
+        tv_name.setText(currentWindTurbineName);
 
-        ip_address = databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
+        ip_address = databaseHelper.getWindTurbineIpAddress(currentWindTurbineId);
 
 
         try {
@@ -173,11 +178,11 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         // Add the red pixel coordinates to the database
         if (redPixelX != -1 && redPixelY != -1) {
-            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId, timestamp);
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
             redPixelX = -1;
             redPixelY = -1;
         } else {
-            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, lastWindTurbineId, timestamp);
+            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
         }
     }
 
@@ -263,15 +268,19 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             finish();
             return true;
         } else if (id == R.id.action_export) {
-            exportData();
+            exportCSVHelper.setWindTurbineId(currentWindTurbineId);
+            exportCSVHelper.setCSVDefaultNameName("export_"+currentWindTurbineName);
+
+            exportCSVHelper.createFile();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void exportData() {
-        // Implementiere die Logik zum Exportieren von Daten
-        Toast.makeText(this, "Exporting data...", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        exportCSVHelper.handleActivityResult(requestCode, resultCode, data);
     }
 
 }

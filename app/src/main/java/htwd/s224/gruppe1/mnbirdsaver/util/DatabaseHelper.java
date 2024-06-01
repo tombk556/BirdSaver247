@@ -257,4 +257,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public Cursor getAverageCoordsCursor(Integer windTurbineId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (windTurbineId == null) {
+            return db.rawQuery("SELECT * FROM " + VIEW_AVERAGE_COORDS, null);
+        } else {
+            return db.rawQuery("SELECT * FROM " + VIEW_AVERAGE_COORDS + " WHERE wind_turbine_id = ?", new String[]{String.valueOf(windTurbineId)});
+        }
+    }
+
 }
