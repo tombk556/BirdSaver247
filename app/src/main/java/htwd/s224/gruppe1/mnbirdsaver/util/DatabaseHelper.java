@@ -1,5 +1,6 @@
 package htwd.s224.gruppe1.mnbirdsaver.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -8,8 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
+
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -43,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private Context context;
 
     private static final String PREFS_NAME = "WindTurbinePrefs";
-    private static final String LAST_WIND_TURBINE_ID = "LastWindTurbineId";
+    private static final String CURRENT_WIND_TURBINE_ID = "CurrentWindTurbineId";
 
     private SharedPreferences sharedPreferences;
 
@@ -130,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.e(TAG, "Wind Turbine konnte nicht eingefügt werden");
         } else {
             Log.d(TAG, "Wind Turbine erfolgreich eingefügt mit ID: " + newId);
-            saveLastWindTurbineId(newId);  // Speichere die ID der neu eingefügten Windturbine
+            saveCurrentWindTurbineId(newId);  // Speichere die ID der neu eingefügten Windturbine
         }
         db.close();
         return newId;
@@ -168,7 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         resetDatabase(db);
         db.close();
 
-        saveLastWindTurbineId(0);
+        saveCurrentWindTurbineId(0);
     }
 
     // Interne Methode zum Zurücksetzen der Datenbank
@@ -183,14 +185,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    private void saveLastWindTurbineId(long windTurbineId) {
+    private void saveCurrentWindTurbineId(long windTurbineId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(LAST_WIND_TURBINE_ID, windTurbineId);
+        editor.putLong(CURRENT_WIND_TURBINE_ID, windTurbineId);
         editor.apply();
     }
 
-    public long getLastWindTurbineId() {
-        return sharedPreferences.getLong(LAST_WIND_TURBINE_ID, 0);
+    public long getCurrentWindTurbineId() {
+        return sharedPreferences.getLong(CURRENT_WIND_TURBINE_ID, 0);
     }
 
     public String getWindTurbineIpAddress(int windTurbineId) {
@@ -236,13 +238,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public String getLocalTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFormat.setTimeZone(calendar.getTimeZone()); // Setzt die Zeitzone des SimpleDateFormat auf die Zeitzone des Kalenders
-        return dateFormat.format(calendar.getTime());
+    @SuppressLint("Range")
+    public List<WindTurbine> getAllWindTurbines() {
+        List<WindTurbine> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_WIND_TURBINE, new String[] {COLUMN_WIND_TURBINE_ID, COLUMN_WIND_TURBINE_NAME, COLUMN_WIND_TURBINE_IP_ADDRESS}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_WIND_TURBINE_ID));
+                String name = cursor.getString(cursor.getColumnIndex(COLUMN_WIND_TURBINE_NAME));
+                String ipAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WIND_TURBINE_IP_ADDRESS));
+                WindTurbine turbine = new WindTurbine(id, name, ipAddress);
+                list.add(turbine);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
     }
-
-
 
 }

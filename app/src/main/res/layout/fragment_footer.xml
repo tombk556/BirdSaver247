@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageButton
-        android:id="@+id/logo"
+        android:id="@+id/footer_image_button"
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_marginTop="124dp"

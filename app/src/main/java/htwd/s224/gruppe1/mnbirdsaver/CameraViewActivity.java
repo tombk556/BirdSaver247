@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,8 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,6 +33,7 @@ import com.google.android.gms.location.Priority;
 
 import java.util.Calendar;
 
+import htwd.s224.gruppe1.mnbirdsaver.legacy.GPSActivity;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
@@ -67,7 +70,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
 
-        requestLocationPermission();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
 
         imageView = findViewById(R.id.view);
         tv_gps = findViewById(R.id.gpsValue);
@@ -83,17 +88,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
                 .setMaxUpdateDelayMillis(10000)
                 .build();
 
-        /*locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                for (Location location : locationResult.getLocations()) {
-                    updateUI_values(location);
-                    insertData(location);
-                }
-            }
-        };
-
-         */
 
         locationCallback = new LocationCallback() {
             @Override
@@ -115,7 +109,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
-        lastWindTurbineId = (int) databaseHelper.getLastWindTurbineId();
+        lastWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
 
         if (lastWindTurbineId == 0) {
             Intent intent = new Intent(this, IpAddressActivity.class);
@@ -127,8 +121,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         ip_address = databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
 
-        Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
 
         try {
             toggleButton = findViewById(R.id.submitButton);
@@ -165,7 +157,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
     private void resetDatabase() {
         databaseHelper.resetDatabase();
-        Toast.makeText(this, "Datenbank zurückgesetzt", Toast.LENGTH_LONG).show();
     }
 
     private void updateUI_values(Location location) {
@@ -212,25 +203,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
-    private void requestLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            Toast.makeText(this, "Standortberechtigung bereits erteilt.", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Standortberechtigung erteilt.", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Standortberechtigung wurden verweigert.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
 
     public void startButtonClicked(View view) {
         Log.d("CameraView", "startButtonClicked() wurde aufgerufen");
@@ -275,4 +247,31 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     private void initializeImageFetcher() {
         imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, IpAddressActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        } else if (id == R.id.action_export) {
+            exportData();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void exportData() {
+        // Implementiere die Logik zum Exportieren von Daten
+        Toast.makeText(this, "Exporting data...", Toast.LENGTH_SHORT).show();
+    }
+
 }

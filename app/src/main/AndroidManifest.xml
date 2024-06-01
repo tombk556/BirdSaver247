@@ -27,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GPSActivity"/>
+        <activity android:name=".legacy.GPSActivity"/>
         <activity android:name=".ActivityRedPixelDetector"/>
         <activity android:name=".IpAddressActivity"/>
         <activity android:name=".CameraViewActivity"/>

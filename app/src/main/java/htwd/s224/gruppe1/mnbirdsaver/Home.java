@@ -64,7 +64,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         databaseHelper = new DatabaseHelper(this);
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
-        lastWindTurbineId = (int) databaseHelper.getLastWindTurbineId();
+        lastWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
 
         if (lastWindTurbineId == 0) {
             Intent intent = new Intent(this, IpAddressActivity.class);
@@ -76,8 +76,6 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
         ip_address =  databaseHelper.getWindTurbineIpAddress(lastWindTurbineId);
 
-        Toast.makeText(this, "ID: " + lastWindTurbineId, Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "IP: " + ip_address, Toast.LENGTH_LONG).show();
 
         try {
             toggleButton = findViewById(R.id.submitButton);
@@ -102,7 +100,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            Toast.makeText(this, "Standortberechtigung bereits erteilt.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Standortberechtigung bereits erteilt.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -111,9 +109,9 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Standortberechtigung erteilt.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Standortberechtigung erteilt.", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Standortberechtigung wurden verweigert.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Standortberechtigung wurden verweigert.", Toast.LENGTH_SHORT).show();
             }
         }
     }
