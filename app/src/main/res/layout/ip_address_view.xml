@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/Button1"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -92,13 +92,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editText" />
 
+    <!-- Spinner for selecting existing wind turbines -->
+    <Spinner
+        android:id="@+id/spinnerWindTurbines"
+        android:layout_width="300dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text_background"
+        app:layout_constraintStart_toStartOf="@id/editName"
+        app:layout_constraintEnd_toEndOf="@id/editName"
+        app:layout_constraintTop_toBottomOf="@id/editName" />
+
     <!-- Submit Button -->
     <Button
         android:id="@+id/button"
         android:layout_width="300dp"
         android:layout_height="45dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:backgroundTint="@color/light_green"
         android:insetBottom="0dp"
@@ -109,11 +120,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.51"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editName" />
+        app:layout_constraintTop_toBottomOf="@id/spinnerWindTurbines" />
 
     <!-- Footer -->
     <include
-        android:id="@+id/footer"
         layout="@layout/fragment_footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

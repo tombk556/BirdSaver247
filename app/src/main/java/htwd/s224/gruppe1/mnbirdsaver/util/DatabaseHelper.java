@@ -1,5 +1,6 @@
 package htwd.s224.gruppe1.mnbirdsaver.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -8,8 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.util.Log;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
+
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -38,11 +40,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // View Name
     public static final String VIEW_MEASUREMENT_WITH_WIND_TURBINE = "wind_turbine_measurement";
+    public static final String VIEW_AVERAGE_COORDS = "wind_turbine_measurement_avg";
 
     private Context context;
 
     private static final String PREFS_NAME = "WindTurbinePrefs";
-    private static final String LAST_WIND_TURBINE_ID = "LastWindTurbineId";
+    private static final String CURRENT_WIND_TURBINE_ID = "CurrentWindTurbineId";
 
     private SharedPreferences sharedPreferences;
 
@@ -77,6 +80,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + "FROM " + TABLE_MEASUREMENT + " "
             + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + ";";
 
+    private static final String CREATE_AVERAGE_COORDS_VIEW = "CREATE VIEW " + VIEW_AVERAGE_COORDS + " AS " +
+            "SELECT " +
+            TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, " +
+            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, " +
+            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS avg_longitude, " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS avg_latitude " +
+            "FROM " + TABLE_MEASUREMENT + " " +
+            "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " " +
+            "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
+
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -93,10 +111,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // View erstellen
         Log.d(TAG, "Creating view");
         db.execSQL(CREATE_VIEW_MEASUREMENT_WITH_WIND_TURBINE);
+        db.execSQL(CREATE_AVERAGE_COORDS_VIEW);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
         resetDatabase(db);
     }
 
@@ -112,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.e(TAG, "Wind Turbine konnte nicht eingefügt werden");
         } else {
             Log.d(TAG, "Wind Turbine erfolgreich eingefügt mit ID: " + newId);
-            saveLastWindTurbineId(newId);  // Speichere die ID der neu eingefügten Windturbine
+            saveCurrentWindTurbineId(newId);  // Speichere die ID der neu eingefügten Windturbine
         }
         db.close();
         return newId;
@@ -150,7 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         resetDatabase(db);
         db.close();
 
-        saveLastWindTurbineId(0);
+        saveCurrentWindTurbineId(0);
     }
 
     // Interne Methode zum Zurücksetzen der Datenbank
@@ -159,19 +179,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_MEASUREMENT_WITH_WIND_TURBINE);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEASUREMENT);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WIND_TURBINE);
+        db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
         onCreate(db);
 
 
     }
 
-    private void saveLastWindTurbineId(long windTurbineId) {
+    private void saveCurrentWindTurbineId(long windTurbineId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(LAST_WIND_TURBINE_ID, windTurbineId);
+        editor.putLong(CURRENT_WIND_TURBINE_ID, windTurbineId);
         editor.apply();
     }
 
-    public long getLastWindTurbineId() {
-        return sharedPreferences.getLong(LAST_WIND_TURBINE_ID, 0);
+    public long getCurrentWindTurbineId() {
+        return sharedPreferences.getLong(CURRENT_WIND_TURBINE_ID, 0);
     }
 
     public String getWindTurbineIpAddress(int windTurbineId) {
@@ -217,13 +238,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public String getLocalTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFormat.setTimeZone(calendar.getTimeZone()); // Setzt die Zeitzone des SimpleDateFormat auf die Zeitzone des Kalenders
-        return dateFormat.format(calendar.getTime());
+    @SuppressLint("Range")
+    public List<WindTurbine> getAllWindTurbines() {
+        List<WindTurbine> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_WIND_TURBINE, new String[] {COLUMN_WIND_TURBINE_ID, COLUMN_WIND_TURBINE_NAME, COLUMN_WIND_TURBINE_IP_ADDRESS}, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(COLUMN_WIND_TURBINE_ID));
+                String name = cursor.getString(cursor.getColumnIndex(COLUMN_WIND_TURBINE_NAME));
+                String ipAddress = cursor.getString(cursor.getColumnIndex(COLUMN_WIND_TURBINE_IP_ADDRESS));
+                WindTurbine turbine = new WindTurbine(id, name, ipAddress);
+                list.add(turbine);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
     }
 
-
+    public Cursor getAverageCoordsCursor(Integer windTurbineId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (windTurbineId == null) {
+            return db.rawQuery("SELECT * FROM " + VIEW_AVERAGE_COORDS, null);
+        } else {
+            return db.rawQuery("SELECT * FROM " + VIEW_AVERAGE_COORDS + " WHERE wind_turbine_id = ?", new String[]{String.valueOf(windTurbineId)});
+        }
+    }
 
 }

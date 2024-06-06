@@ -28,7 +28,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
     ImageView imageView;
     ListView listView;
     ActivityResultLauncher<Intent> resultLauncher;
-    DatabaseHelper dbHelper;
+    //DatabaseHelper dbHelper;
 
 
     @Override
@@ -39,7 +39,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
         btnPickImage = findViewById(R.id.btnPickImage);
         imageView = findViewById(R.id.imageView);
         listView = findViewById(R.id.listViewMeasurements);
-        dbHelper = new DatabaseHelper(this); // Initialize the helper
+        //dbHelper = new DatabaseHelper(this); // Initialize the helper
         registerResult();
         loadMeasurementData(); // Load and display the database data
 
@@ -81,7 +81,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
             if (!redPixels.isEmpty()) {
                 for (PixelDetector.Coordinate center : redPixels) {
                     Log.d("RedPixelCenter", "Center of red pixels: " + center.toString());
-                    dbHelper.addRedPixel(center.x, center.y, 12.23f, 12.2f); // Store each red pixel in the database
+                    //dbHelper.addRedPixel(center.x, center.y, 12.23f, 12.2f); // Store each red pixel in the database
                     Toast.makeText(this, "Red pixel saved: X: " + center.x + ", Y: " + center.y, Toast.LENGTH_LONG).show();
                 }
             } else {
@@ -98,7 +98,7 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
         ArrayList<String> listItems = new ArrayList<>();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
         listView.setAdapter(adapter);
-
+        /*
         Cursor cursor = dbHelper.getReadableDatabase().query(
                 DatabaseHelper.TABLE_NAME,
                 new String[] { "measurement_id", "pixel_x_coord", "pixel_y_coord", "gps_x_coord", "gps_y_coord", "created_at" },
@@ -114,8 +114,8 @@ public class ActivityRedPixelDetector extends AppCompatActivity {    Button btnP
         }
         cursor.close();
         adapter.notifyDataSetChanged();
+        */
+
     }
-
-
 
 }

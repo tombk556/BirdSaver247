@@ -1,4 +1,4 @@
-package htwd.s224.gruppe1.mnbirdsaver;
+package htwd.s224.gruppe1.mnbirdsaver.legacy;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,6 +27,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
 import java.util.Calendar;
+
+import htwd.s224.gruppe1.mnbirdsaver.Home;
+import htwd.s224.gruppe1.mnbirdsaver.R;
 
 public class GPSActivity extends AppCompatActivity {
 
