@@ -106,37 +106,19 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
     // TODO replace double[][] arrays with data base calls
     public void testTransformer(){
-        double[][] gpsCoordinates = {
-                {37.7749, -122.4194},
-                {34.0522, -118.2437},
-                {40.7128, -74.0060},
-                // Weitere GPS-Koordinaten hier hinzufügen
-        };
 
-        double[][] pixelCoordinates = {
-                {512, 256},
-                {600, 300},
-                {800, 400},
-                // Entsprechende Pixelkoordinaten hier hinzufügen
-        };
+        CoordinateTransform coordinateTransform = new CoordinateTransform();
 
-        CoordinateTransform transformer = new CoordinateTransform(gpsCoordinates, pixelCoordinates);
+        // Read the CSV file
+        coordinateTransform.readData();
 
-        // Beispiel GPS-Koordinaten
-        /*double lat = 37.7749;
-        double lon = -122.4194;
+//        int testPixelX = 977;
+//        int testPixelY = 482;
+        int testPixelX = 284;
+        int testPixelY = 296;
 
-        // Umrechnung von GPS zu Pixel
-        double[] pixel = transformer.gpsToPixel(lat, lon);
-        Log.d("CALCULATION 1: ", "Pixel: x=" + pixel[0] + ", y=" + pixel[1]);*/
-
-        // Beispiel Pixelkoordinaten für Umrechnung zurück zu GPS
-        double x = 512;
-        double y = 256;
-
-        // Umrechnung von Pixel zu GPS
-        double[] gps = transformer.pixelToGps(x, y);
-        Log.d("CALCULATION 2: ", "GPS: lat=" + gps[0] + ", lon=" + gps[1]);
+        float[] gpsCoords = coordinateTransform.pixelToGps(testPixelX, testPixelY);
+        Log.d("CALCULATION: ", "Longitude: " + gpsCoords[0] + ", Latitude: " + gpsCoords[1]);
     }
 
     private void requestLocationPermission() {
