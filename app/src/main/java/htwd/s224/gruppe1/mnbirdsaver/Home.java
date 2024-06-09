@@ -104,16 +104,12 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         testTransformer();
     }
 
-    // TODO replace double[][] arrays with data base calls
     public void testTransformer(){
 
         CoordinateTransform coordinateTransform = new CoordinateTransform();
 
-        // Read the CSV file
         coordinateTransform.readData();
 
-//        int testPixelX = 977;
-//        int testPixelY = 482;
         int testPixelX = 284;
         int testPixelY = 296;
 
