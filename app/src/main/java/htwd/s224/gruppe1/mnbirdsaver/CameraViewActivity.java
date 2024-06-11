@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +35,7 @@ import java.util.Calendar;
 import htwd.s224.gruppe1.mnbirdsaver.legacy.GPSActivity;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.ExportCSVHelper;
+import htwd.s224.gruppe1.mnbirdsaver.util.ImageFetcher;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;

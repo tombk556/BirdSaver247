@@ -85,10 +85,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, " +
             TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, " +
             TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, " +
-            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " +
-            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " +
-            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS avg_longitude, " +
-            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS avg_latitude " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + " AS pixel_x, " +
+            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " AS pixel_y, " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS longitude, " +
+            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS latitude " +
             "FROM " + TABLE_MEASUREMENT + " " +
             "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " " +
             "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
@@ -182,6 +182,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
         onCreate(db);
 
+    }
+    public void resetViews() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
+        db.execSQL(CREATE_AVERAGE_COORDS_VIEW);
 
     }
 

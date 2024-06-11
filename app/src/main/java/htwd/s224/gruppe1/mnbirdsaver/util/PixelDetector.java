@@ -1,4 +1,4 @@
-package htwd.s224.gruppe1.mnbirdsaver;
+package htwd.s224.gruppe1.mnbirdsaver.util;
 
 import android.graphics.Bitmap;
 import java.util.ArrayList;
