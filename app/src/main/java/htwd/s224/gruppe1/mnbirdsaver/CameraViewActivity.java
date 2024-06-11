@@ -181,8 +181,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
             redPixelX = -1;
             redPixelY = -1;
-        } else {
-            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
+            imageFetcher.increment_arc_dot();
         }
     }
 

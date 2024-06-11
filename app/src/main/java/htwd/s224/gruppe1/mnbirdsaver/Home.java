@@ -59,6 +59,8 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
         imageView = findViewById(R.id.view);
         tv_name = findViewById(R.id.name);
+        toggleButton = findViewById(R.id.submitButton);
+        toggleButton.setText("Start");
 
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setWaitForAccurateLocation(true)
@@ -84,10 +86,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
 
         try {
-            toggleButton = findViewById(R.id.submitButton);
-            toggleButton.setText("Start");
-
-            imageFetcher = new ImageFetcher(ip_address, imageView,this, true);
+            imageFetcher = new ImageFetcher(ip_address, imageView,this, false);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {

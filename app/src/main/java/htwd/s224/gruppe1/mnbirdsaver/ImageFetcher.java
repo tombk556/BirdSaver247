@@ -39,6 +39,11 @@ public class ImageFetcher {
         new DownloadImageTask().execute("http://" + ip_address + "/take_picture");
     }
 
+
+    public void increment_arc_dot() {
+        currentAngle += ANGLE_INCREMENT;
+    }
+
     public List<PixelDetector.Coordinate> getRedPixelCoordinates() {
         return redPixelCoordinates;
     }
@@ -102,7 +107,7 @@ public class ImageFetcher {
             canvas.drawCircle(x, y, 10, paint);  // Draw a dot with radius 10
 
             // Increment the angle for the next dot
-            currentAngle += ANGLE_INCREMENT;
+            //currentAngle += ANGLE_INCREMENT;
 
             return mutableBitmap;
         }
