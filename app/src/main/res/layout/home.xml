@@ -64,6 +64,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
+    <!-- Instructions-->
+    <TextView
+        android:id="@+id/instructionHeadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="44dp"
+        android:text="@string/instructionHeadline"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view" />
+
+    <ImageView
+        android:id="@+id/check"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/check"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.136"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/instructionHeadline" />
+
+    <TextView
+        android:id="@+id/instruction"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/instruction_background"
+        android:padding="10dp"
+        android:text="Bewegen Sie sich ins Kamerabild, sodass Sie sich selbst sehen."
+        android:textAlignment="center"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/check"
+        app:layout_constraintTop_toBottomOf="@+id/instructionHeadline" />
+
     <!-- Calibrate Button -->
     <Button
         android:id="@+id/button"
@@ -74,14 +112,14 @@
         android:layout_marginEnd="32dp"
         android:backgroundTint="@color/light_green"
         android:insetBottom="0dp"
-        android:text="@string/goOn"
+        android:text="@string/startCalibration"
         android:onClick="continueButtonClicked"
         android:textAlignment="center"
         android:textColor="@color/dark_grey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.425"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view" />
+        app:layout_constraintTop_toBottomOf="@id/instruction" />
 
     <!-- Footer -->
     <include

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -68,6 +68,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     private boolean includeArcDot;
     private SwitchCompat simOnOffSwitch;
 
+    private int locationCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,11 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
                 if (location != null) {
                     updateUI_values(location);
                     insertData(location);
+
+                    locationCount++; // after 10 values the calculation should stop
+                    if (locationCount >= 10) { // TODO check if 10 values are enough
+                        updateInstructionText();
+                    }
                 }
             }
         };
@@ -160,6 +167,14 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
+    private void updateInstructionText() {
+        TextView instructionTextView = findViewById(R.id.instruction);
+        instructionTextView.setText("Kalibrierung erfolgreich abgeschlossen!");
+
+        ImageView checkImageView = findViewById(R.id.check);
+        checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
+    }
+
     private void resetDatabase() {
         databaseHelper.resetDatabase();
     }
@@ -217,6 +232,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             toggleButton.setText("Stop");
             handler.post(imageDownloader);
             startLocationUpdates();
+
+            TextView instructionTextView = findViewById(R.id.instruction);
+            instructionTextView.setText("Laufen Sie im Bild herum und versuchen Sie dabei möglichst den Großteil des Bildes auszufüllen.");
         } else {
             isDownloading = false;
             toggleButton.setText("Start");
