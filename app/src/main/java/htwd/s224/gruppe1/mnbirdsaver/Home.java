@@ -24,7 +24,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.Priority;
 
 // Importiere den DatabaseHelper aus dem Unterpaket
+import htwd.s224.gruppe1.mnbirdsaver.util.CoordinateTransform;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
+import htwd.s224.gruppe1.mnbirdsaver.util.ImageFetcher;
 
 public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -54,11 +56,14 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         setContentView(R.layout.home);
         requestLocationPermission();
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         imageView = findViewById(R.id.view);
         tv_name = findViewById(R.id.name);
+        toggleButton = findViewById(R.id.submitButton);
+        toggleButton.setText("Start");
 
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setWaitForAccurateLocation(true)
@@ -68,6 +73,8 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
         // DatabaseHelper initialisieren
         databaseHelper = new DatabaseHelper(this);
+
+        databaseHelper.resetViews();
 
         // Letzte WindTurbine_ID abrufen, Standardwert ist 0
         lastWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
@@ -84,10 +91,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
 
         try {
-            toggleButton = findViewById(R.id.submitButton);
-            toggleButton.setText("Start");
-
-            imageFetcher = new ImageFetcher(ip_address, imageView,this, true);
+            imageFetcher = new ImageFetcher(ip_address, imageView,this, false);
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -106,15 +110,15 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
     public void testTransformer(){
 
-        CoordinateTransform coordinateTransform = new CoordinateTransform();
-
-        coordinateTransform.readData();
-
+        CoordinateTransform coordinateTransform = new CoordinateTransform(databaseHelper, lastWindTurbineId);
+        // hier irgendwie trenniere
         int testPixelX = 284;
         int testPixelY = 296;
 
         float[] gpsCoords = coordinateTransform.pixelToGps(testPixelX, testPixelY);
         Log.d("CALCULATION: ", "Longitude: " + gpsCoords[0] + ", Latitude: " + gpsCoords[1]);
+        String my_toast = "CALCULATION: " + "Longitude: " + gpsCoords[0] + ", Latitude: " + gpsCoords[1];
+        Toast.makeText(this, my_toast, Toast.LENGTH_SHORT).show();
     }
 
     private void requestLocationPermission() {

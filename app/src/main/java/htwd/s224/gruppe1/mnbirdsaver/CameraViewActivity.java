@@ -36,6 +36,7 @@ import java.util.Calendar;
 import htwd.s224.gruppe1.mnbirdsaver.legacy.GPSActivity;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.ExportCSVHelper;
+import htwd.s224.gruppe1.mnbirdsaver.util.ImageFetcher;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -196,8 +197,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
             redPixelX = -1;
             redPixelY = -1;
-        } else {
-            databaseHelper.addMeasurement(redPixelX, redPixelY, gps_long, gps_lat, currentWindTurbineId, timestamp);
+            imageFetcher.increment_arc_dot();
         }
     }
 

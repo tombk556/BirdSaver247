@@ -1,10 +1,11 @@
-package htwd.s224.gruppe1.mnbirdsaver;
+package htwd.s224.gruppe1.mnbirdsaver.util;
 
 import android.graphics.Matrix;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class CoordinateTransform {
+public class CoordinateTransform_og {
 
     // Inner class to hold pixel and GPS coordinates
     static class CoordinatePair {
