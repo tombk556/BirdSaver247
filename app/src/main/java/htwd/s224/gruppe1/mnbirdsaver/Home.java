@@ -109,10 +109,12 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             // Set up the switch listener
             simOnOffSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 includeArcDot = isChecked;
-                imageFetcher = new ImageFetcher(ip_address, imageView,this, false);
+                initializeImageFetcher();
             });
 
-            imageFetcher = new ImageFetcher(ip_address, imageView,this, false);
+            // Initialize the ImageFetcher with the initial state of includeArcDot
+            initializeImageFetcher();
+
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -129,8 +131,11 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         testTransformer();
     }
 
-    public void testTransformer(){
+    private void initializeImageFetcher() {
+        imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
+    }
 
+    public void testTransformer(){
         CoordinateTransform coordinateTransform = new CoordinateTransform(databaseHelper, lastWindTurbineId);
         // hier irgendwie trenniere
         int testPixelX = 284;
@@ -171,15 +176,6 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             TextView instructionTextView = findViewById(R.id.instruction);
             instructionTextView.setText("Laufen Sie ins Bild sodass Sie sich selbst sehen.");
 
-            if(redPixelX >= 0 && redPixelY >= 0){ // checks if red pixel was detected to enable "Starte Kalibrierung" button
-                ImageView checkImageView = findViewById(R.id.check);
-                checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
-
-                Button calibrateButton = findViewById(R.id.button);
-                calibrateButton.setBackgroundColor(ContextCompat.getColor(this, R.color.light_green));
-                calibrateButton.setTextColor(ContextCompat.getColor(this, R.color.dark_grey));
-                calibrateButton.setEnabled(true);
-            }
         } else {
             isDownloading = false;
             toggleButton.setText("Start");
@@ -202,6 +198,16 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
     public void onRedPixelCoordinatesDetected(int x, int y) {
         redPixelX = x;
         redPixelY = y;
+
+        if(redPixelX >= 0 && redPixelY >= 0){ // checks if red pixel was detected to enable "Starte Kalibrierung" button
+            ImageView checkImageView = findViewById(R.id.check);
+            checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
+
+            Button calibrateButton = findViewById(R.id.button);
+            calibrateButton.setBackgroundColor(ContextCompat.getColor(this, R.color.light_green));
+            calibrateButton.setTextColor(ContextCompat.getColor(this, R.color.dark_grey));
+            calibrateButton.setEnabled(true);
+        }
     }
 
     @Override
