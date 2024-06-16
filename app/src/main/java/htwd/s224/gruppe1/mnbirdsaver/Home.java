@@ -1,10 +1,13 @@
 package htwd.s224.gruppe1.mnbirdsaver;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -51,6 +55,9 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
     private int redPixelX = -1;
     private int redPixelY = -1;
 
+    private boolean includeArcDot;
+    private SwitchCompat simOnOffSwitch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +72,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         tv_name = findViewById(R.id.name);
         toggleButton = findViewById(R.id.submitButton);
         toggleButton.setText("Start");
+        simOnOffSwitch = findViewById(R.id.SimOnOff);
 
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setWaitForAccurateLocation(true)
@@ -93,7 +101,24 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
 
         try {
-            imageFetcher = new ImageFetcher(ip_address, imageView,this, false);
+            toggleButton = findViewById(R.id.submitButton);
+            toggleButton.setText("Start");
+
+            // Set initial state of includeArcDot
+            includeArcDot = false;
+
+            // Initialize the switch with the current state
+            simOnOffSwitch.setChecked(includeArcDot);
+
+            // Set up the switch listener
+            simOnOffSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                includeArcDot = isChecked;
+                initializeImageFetcher();
+            });
+
+            // Initialize the ImageFetcher with the initial state of includeArcDot
+            initializeImageFetcher();
+
             imageDownloader = new Runnable() {
                 @Override
                 public void run() {
@@ -109,14 +134,30 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
     }
 
+
+    // Image and Red Pixel -------------------------------------------------------------------------
+    private void initializeImageFetcher() {
+        imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
+    }
+
+
     @Override
     public void onRedPixelCoordinatesDetected(int x, int y) {
         redPixelX = x;
         redPixelY = y;
+
+        if(redPixelX >= 0 && redPixelY >= 0){ // checks if red pixel was detected to enable "Starte Kalibrierung" button
+            ImageView checkImageView = findViewById(R.id.check);
+            checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
+
+            Button calibrateButton = findViewById(R.id.button);
+            calibrateButton.setBackgroundColor(ContextCompat.getColor(this, R.color.light_green));
+            calibrateButton.setTextColor(ContextCompat.getColor(this, R.color.dark_grey));
+            calibrateButton.setEnabled(true);
+        }
     }
 
     // GPS Permissions -----------------------------------------------------------------------------
-
     private void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
@@ -144,6 +185,10 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             isDownloading = true;
             toggleButton.setText("Stop");
             handler.post(imageDownloader);
+
+            TextView instructionTextView = findViewById(R.id.instruction);
+            instructionTextView.setText("Laufen Sie ins Bild sodass Sie sich selbst sehen.");
+
         } else {
             isDownloading = false;
             toggleButton.setText("Start");
@@ -182,13 +227,13 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         }
     }
 
-
     // Navigation ----------------------------------------------------------------------------------
     public void navigateToHome(View view) {
         Intent intent = new Intent(this, Home.class);
         intent.putExtra("IPADDRESS", "141.56.131.15");
         startActivity(intent);
     }
+
 
     // Menu ----------------------------------------------------------------------------------------
     @Override

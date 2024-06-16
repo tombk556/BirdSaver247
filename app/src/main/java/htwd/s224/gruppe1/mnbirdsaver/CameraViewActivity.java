@@ -221,7 +221,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     // GPS -----------------------------------------------------------------------------------------
 
     private void startLocationUpdates() {
-        tv_gps.setText("Start");
+        tv_gps.setText("Loading...");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
         } else {
