@@ -332,5 +332,4 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         super.onActivityResult(requestCode, resultCode, data);
         exportCSVHelper.handleActivityResult(requestCode, resultCode, data);
     }
-
 }
