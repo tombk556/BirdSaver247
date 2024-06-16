@@ -19,23 +19,19 @@ public class ExportCSVHelper {
     private static final int CREATE_FILE_REQUEST_CODE = 1;
     private Activity activity;
     private Fragment fragment;
-    private DatabaseHelper databaseHelper;
+    private Cursor cursor;
     private int windTurbineId; // Optionaler Filter
     private String csvDefaultName = "data_export";
 
-    public ExportCSVHelper(Activity activity, DatabaseHelper databaseHelper) {
+    public ExportCSVHelper(Activity activity, Cursor cursor) {
         this.activity = activity;
-        this.databaseHelper = databaseHelper;
+        this.cursor = cursor;
     }
 
-    public ExportCSVHelper(Fragment fragment, DatabaseHelper databaseHelper) {
+    public ExportCSVHelper(Fragment fragment, Cursor cursor) {
         this.fragment = fragment;
         this.activity = fragment.getActivity();
-        this.databaseHelper = databaseHelper;
-    }
-
-    public void setWindTurbineId(int windTurbineId) {
-        this.windTurbineId = windTurbineId;
+        this.cursor = cursor;
     }
 
     public void setCSVDefaultNameName(String name) {
@@ -64,7 +60,6 @@ public class ExportCSVHelper {
     }
 
     private void writeFileToUri(Uri uri) {
-        Cursor cursor = databaseHelper.getAverageCoordsCursor(windTurbineId);
 
         if (cursor != null && cursor.moveToFirst()) {
             try (OutputStream outputStream = activity.getContentResolver().openOutputStream(uri);

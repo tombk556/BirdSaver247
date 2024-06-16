@@ -4,7 +4,15 @@
         android:title="Settings"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/action_export"
-        android:title="Export"
+        android:id="@+id/action_export_measurement"
+        android:title="Export Measurement"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_export_matrix"
+        android:title="Export Matrix"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_test_matrix"
+        android:title="Test Matrix"
         app:showAsAction="never"/>
 </menu>

@@ -1,11 +1,10 @@
 package htwd.s224.gruppe1.mnbirdsaver;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,9 +37,9 @@ import htwd.s224.gruppe1.mnbirdsaver.legacy.GPSActivity;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.ExportCSVHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.ImageFetcher;
+import htwd.s224.gruppe1.mnbirdsaver.util.MatrixHelper;
 
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private ImageView imageView;
     private String ip_address;
@@ -55,7 +55,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
     DatabaseHelper databaseHelper;
     ExportCSVHelper exportCSVHelper;
-    SQLiteDatabase db;
 
     private int currentWindTurbineId;
     private String currentWindTurbineName;
@@ -113,10 +112,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         // DatabaseHelper initialisieren
         databaseHelper = new DatabaseHelper(this);
-        exportCSVHelper = new ExportCSVHelper(this, databaseHelper);
 
-        // Datenbank öffnen
-        db = databaseHelper.getWritableDatabase();
 
 
 
@@ -176,13 +172,12 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
     }
 
-    private void resetDatabase() {
-        databaseHelper.resetDatabase();
-    }
+
+    // on Location Change --------------------------------------------------------------------------
 
     private void updateUI_values(Location location) {
         System.out.println("New Coordinates");
-        String gps_coordinates = convertToDMS(location.getLatitude()) + "\n" + convertToDMS(location.getLongitude());
+        String gps_coordinates = _convertToDMS(location.getLatitude()) + "\n" + _convertToDMS(location.getLongitude());
         tv_gps.setText(gps_coordinates);
         tv_timestamp.setText(Calendar.getInstance().getTime().toString());
     }
@@ -201,14 +196,29 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
+    // Converts the coordinates into the known form with degrees, minutes and seconds
     @SuppressLint("DefaultLocale")
-    private String convertToDMS(double decimalDegree) {
+    private String _convertToDMS(double decimalDegree) {
         int degree = (int) decimalDegree;
         double tempMinutes = (decimalDegree - degree) * 60;
         int minutes = (int) tempMinutes;
         double seconds = (tempMinutes - minutes) * 60;
         return String.format("%d° %d' %.6f\"", degree, minutes, seconds);
     }
+
+    // Image and Red Pixel -------------------------------------------------------------------------
+
+    private void initializeImageFetcher() {
+        imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
+    }
+
+    @Override
+    public void onRedPixelCoordinatesDetected(int x, int y) {
+        redPixelX = x;
+        redPixelY = y;
+    }
+
+    // GPS -----------------------------------------------------------------------------------------
 
     private void startLocationUpdates() {
         tv_gps.setText("Start");
@@ -223,6 +233,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
+
+    // Buttons -------------------------------------------------------------------------------------
 
     public void startButtonClicked(View view) {
         Log.d("CameraView", "startButtonClicked() wurde aufgerufen");
@@ -243,34 +255,47 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
+
+    // Navigation ----------------------------------------------------------------------------------
+    public void navigateToHome(View view) {
+        Intent intent = new Intent(this, Home.class);
+        //intent.putExtra("IPADDRESS", "141.56.131.15");
+        startActivity(intent);
+    }
+
     public void navigateToGPS(View view) {
         Intent intent = new Intent(this, GPSActivity.class);
         startActivity(intent);
     }
 
-    public void navigateToHome(View view) {
-        Intent intent = new Intent(this, Home.class);
-        intent.putExtra("IPADDRESS", "141.56.131.15");
-        startActivity(intent);
+    // Matrix --------------------------------------------------------------------------------------
+
+    private void updateMatrix_inDB() {
+        MatrixHelper mxHelper =  new MatrixHelper();
+        databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
+
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Datenbank schließen
-        db.close();
+    private Matrix getMatrix_fromDB() {
+        MatrixHelper mxHelper =  new MatrixHelper();
+        return databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
     }
 
-    @Override
-    public void onRedPixelCoordinatesDetected(int x, int y) {
-        redPixelX = x;
-        redPixelY = y;
+    private void testMatrix_fromDB() {
+        MatrixHelper mxHelper =  new MatrixHelper();
+        Matrix transformMatrix =  databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
+        if (transformMatrix != null) {
+            float[] gpsCoords = mxHelper.pixelToGps(transformMatrix, 284, 296);
+            String my_toast = "Input: " + 284 + "x "+ 296 + "y\n"
+                    +"Result: Longitude: " + gpsCoords[0] + ", Latitude: " + gpsCoords[1];
+            Toast.makeText(this, my_toast, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Matrix ist empty", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void initializeImageFetcher() {
-        imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
-    }
 
+    // Menu ----------------------------------------------------------------------------------------
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -285,16 +310,23 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             startActivity(intent);
             finish();
             return true;
-        } else if (id == R.id.action_export) {
-            exportCSVHelper.setWindTurbineId(currentWindTurbineId);
+        } else if (id == R.id.action_export_measurement) {
+            exportCSVHelper = new ExportCSVHelper(this, databaseHelper.getAverageCoordsCursor(currentWindTurbineId));
             exportCSVHelper.setCSVDefaultNameName("export_"+currentWindTurbineName);
-
             exportCSVHelper.createFile();
             return true;
+        } else if (id == R.id.action_export_matrix) {
+            exportCSVHelper = new ExportCSVHelper(this, databaseHelper.getMatrixCursor(currentWindTurbineId));
+            exportCSVHelper.setCSVDefaultNameName("export_matrix_"+currentWindTurbineName);
+            exportCSVHelper.createFile();
+        } else if (id == R.id.action_test_matrix) {
+            testMatrix_fromDB();
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    // Result of ExportCSVHelper
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
