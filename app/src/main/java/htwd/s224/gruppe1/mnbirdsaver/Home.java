@@ -45,6 +45,8 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
 
     DatabaseHelper databaseHelper;
 
+    MatrixHelper mxHelper;
+
     private int currentWindTurbineId;
     private String currentWindTurbineName;
 
@@ -132,6 +134,8 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             startActivity(intent);
         }
 
+        mxHelper = new MatrixHelper();
+
     }
 
 
@@ -210,12 +214,10 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
     }
 
     private Matrix getMatrix_fromDB() {
-        MatrixHelper mxHelper =  new MatrixHelper();
         return databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
     }
 
     private void testMatrix_fromDB() {
-        MatrixHelper mxHelper =  new MatrixHelper();
         Matrix transformMatrix =  databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
         if (transformMatrix != null) {
             float[] gpsCoords = mxHelper.pixelToGps(transformMatrix, 284, 296);
@@ -256,10 +258,12 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             exportCSVHelper.createFile();
             return true;
         } else if (id == R.id.action_export_matrix) {
+            databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             exportCSVHelper = new ExportCSVHelper(this, databaseHelper.getMatrixCursor(currentWindTurbineId));
             exportCSVHelper.setCSVDefaultNameName("export_matrix_"+currentWindTurbineName);
             exportCSVHelper.createFile();
         } else if (id == R.id.action_test_matrix) {
+            databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             testMatrix_fromDB();
         }
 
