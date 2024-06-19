@@ -3,6 +3,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.location.Location;
@@ -69,6 +70,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     private SwitchCompat simOnOffSwitch;
 
     private int locationCount = 0;
+    MatrixHelper mxHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,6 +165,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             Intent intent = new Intent(this, IpAddressActivity.class);
             startActivity(intent);
         }
+        mxHelper = new MatrixHelper();
     }
 
     private void updateInstructionText() {
@@ -316,10 +320,14 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             exportCSVHelper.createFile();
             return true;
         } else if (id == R.id.action_export_matrix) {
+            databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             exportCSVHelper = new ExportCSVHelper(this, databaseHelper.getMatrixCursor(currentWindTurbineId));
             exportCSVHelper.setCSVDefaultNameName("export_matrix_"+currentWindTurbineName);
             exportCSVHelper.createFile();
         } else if (id == R.id.action_test_matrix) {
+            Cursor cursor = databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId);
+            Toast.makeText(this, "Anzahl: "+ cursor.getCount(), Toast.LENGTH_LONG).show();
+            databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             testMatrix_fromDB();
         }
 

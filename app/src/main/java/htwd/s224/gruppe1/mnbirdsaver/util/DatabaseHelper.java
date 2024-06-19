@@ -105,6 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Join of of wind_turbine and measurement table, but if pixels have multiple GPS coordinates, we will get the average of it
     private static final String CREATE_AVERAGE_COORDS_VIEW = "CREATE VIEW " + VIEW_AVERAGE_COORDS + " AS " +
             "SELECT " +
+            TABLE_MEASUREMENT + "." + COLUMN_MEASUREMENT_ID + " AS measurement_id, " +
             TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, " +
             TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, " +
             TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, " +
@@ -114,7 +115,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS latitude " +
             "FROM " + TABLE_MEASUREMENT + " " +
             "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " " +
-            "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + ", " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
+            "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y  + " " +
+            "ORDER BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
 
 
     // The DatabaseHelper Class --------------------------------------------------------------------
@@ -154,6 +156,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
         onCreate(db);
 
+    }
+
+    public void reset_matrix() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MATRIX);
+        db.execSQL(CREATE_TABLE_MATRIX);
+        db.execSQL(CREATE_AVERAGE_COORDS_VIEW);
     }
 
     // Method for resetting the database
@@ -289,6 +299,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public Cursor getFilteredAverageCoordsCursor(Integer windTurbineId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String avgLongitudeQuery = "SELECT wind_turbine_id, AVG(longitude) AS avg_longitude FROM " + VIEW_AVERAGE_COORDS + " GROUP BY wind_turbine_id";
+
+        String avgLatitudeQuery = "SELECT wind_turbine_id, AVG(latitude) AS avg_latitude FROM " + VIEW_AVERAGE_COORDS + " GROUP BY wind_turbine_id";
+
+    /*
+        String mainQuery = "SELECT M.wind_turbine_id, M.pixel_x, M.pixel_y, M.longitude, Lo.avg_longitude, M.latitude, La.avg_latitude " +
+                "FROM " + VIEW_AVERAGE_COORDS + " AS M " +
+                "INNER JOIN (" + avgLongitudeQuery + ") AS Lo ON M.wind_turbine_id = Lo.wind_turbine_id " +
+                "INNER JOIN (" + avgLatitudeQuery + ") AS La ON M.wind_turbine_id = La.wind_turbine_id " +
+                "WHERE M.wind_turbine_id = ? " +
+                "AND ABS(M.latitude - La.avg_latitude) >= 0.00002 " +
+                "AND ABS(M.longitude - Lo.avg_longitude) >= 0.00002 " +
+                "ORDER BY ABS(M.longitude - Lo.avg_longitude) DESC, ABS(M.latitude - La.avg_latitude) DESC;";
+    */
+
+        String mainQuery = "WITH OrderedData AS (" +
+                "SELECT M.wind_turbine_id, M.pixel_x, M.pixel_y, M.longitude, Lo.avg_longitude, M.latitude, La.avg_latitude, " +
+                "LAG(M.longitude, 1, M.longitude) OVER (PARTITION BY M.wind_turbine_id) AS prev_longitude, " +
+                "LAG(M.latitude, 1, M.latitude) OVER (PARTITION BY M.wind_turbine_id) AS prev_latitude " +
+                "FROM " + VIEW_AVERAGE_COORDS + " AS M " +
+                "INNER JOIN (" + avgLongitudeQuery + ") AS Lo ON M.wind_turbine_id = Lo.wind_turbine_id " +
+                "INNER JOIN (" + avgLatitudeQuery + ") AS La ON M.wind_turbine_id = La.wind_turbine_id " +
+                "WHERE M.wind_turbine_id = ? AND " +
+                "ABS(M.latitude - La.avg_latitude) >= 0.00002 AND " +
+                "ABS(M.longitude - Lo.avg_longitude) >= 0.00002 " +
+                ") " +
+                "SELECT wind_turbine_id, pixel_x, pixel_y, longitude, avg_longitude, latitude, avg_latitude, prev_longitude, prev_latitude " +
+                "FROM OrderedData " +
+                "WHERE (ABS(longitude - prev_longitude) >= 0.0001 AND ABS(latitude - prev_latitude) >= 0.00002) "+
+                "OR (ABS(longitude - prev_longitude) >= 0.0002 AND ABS(latitude - prev_latitude) >= 0.00001) "+
+                ";";
+
+        if (windTurbineId != null) {
+            return db.rawQuery(mainQuery, new String[]{String.valueOf(windTurbineId)});
+        } else {
+            return db.rawQuery(mainQuery, new String[]{"M.wind_turbine_id"});
+        }
+
+    }
 
     // MATRIX --------------------------------------------------------------------------------------
 
@@ -325,9 +377,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void getAffineTransformForWindTurbine(MatrixHelper MxTransformer, @NonNull Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] selectionArgs = new String[]{windTurbineId.toString()};
-        String query = "SELECT pixel_x, pixel_y, longitude, latitude FROM " + VIEW_AVERAGE_COORDS + " WHERE wind_turbine_id = ?";
-        Cursor cursor = db.rawQuery(query, selectionArgs);
-
+        //String query = "SELECT pixel_x, pixel_y, longitude, latitude FROM " + VIEW_AVERAGE_COORDS + " WHERE wind_turbine_id = ?";
+        //Cursor cursor = db.rawQuery(query, selectionArgs);
+        Cursor cursor = getFilteredAverageCoordsCursor(windTurbineId);
 
         if (cursor.getCount() < 4) {
             Log.e("DBHelper", "At least 4 points are required to compute an affine transform.");

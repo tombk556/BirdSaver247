@@ -3,6 +3,7 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
@@ -135,6 +136,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         }
 
         mxHelper = new MatrixHelper();
+        databaseHelper.reset_matrix();
 
     }
 
@@ -222,7 +224,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         if (transformMatrix != null) {
             float[] gpsCoords = mxHelper.pixelToGps(transformMatrix, 284, 296);
             String my_toast = "Input: " + 284 + "x "+ 296 + "y\n"
-                    +"Result: Longitude: " + gpsCoords[0] + ", Latitude: " + gpsCoords[1];
+                    +"Longitude: " + gpsCoords[0] + " Latitude: " + gpsCoords[1];
             Toast.makeText(this, my_toast, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Matrix ist empty", Toast.LENGTH_SHORT).show();
@@ -263,6 +265,8 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             exportCSVHelper.setCSVDefaultNameName("export_matrix_"+currentWindTurbineName);
             exportCSVHelper.createFile();
         } else if (id == R.id.action_test_matrix) {
+            Cursor cursor = databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId);
+            Toast.makeText(this, "Anzahl: "+ cursor.getCount(), Toast.LENGTH_LONG).show();
             databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             testMatrix_fromDB();
         }
@@ -276,4 +280,5 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         super.onActivityResult(requestCode, resultCode, data);
         exportCSVHelper.handleActivityResult(requestCode, resultCode, data);
     }
+
 }
