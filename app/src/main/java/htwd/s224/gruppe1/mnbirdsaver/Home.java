@@ -234,10 +234,9 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
     // Navigation ----------------------------------------------------------------------------------
     public void navigateToHome(View view) {
         Intent intent = new Intent(this, Home.class);
-        intent.putExtra("IPADDRESS", "141.56.131.15");
         startActivity(intent);
+        finish();
     }
-
 
     // Menu ----------------------------------------------------------------------------------------
     @Override
@@ -266,7 +265,7 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
             exportCSVHelper.createFile();
         } else if (id == R.id.action_test_matrix) {
             Cursor cursor = databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId);
-            Toast.makeText(this, "Anzahl: "+ cursor.getCount(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Count: "+ cursor.getCount(), Toast.LENGTH_LONG).show();
             databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             testMatrix_fromDB();
         }

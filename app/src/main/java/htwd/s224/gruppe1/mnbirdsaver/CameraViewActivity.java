@@ -104,11 +104,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
                 if (location != null) {
                     updateUI_values(location);
                     insertData(location);
-
-                    locationCount++; // after 10 values the calculation should stop
-                    if (locationCount >= 10) { // TODO check if 10 values are enough
-                        updateInstructionText();
-                    }
+                    updateInstructionText();
                 }
             }
         };
@@ -166,14 +162,7 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             startActivity(intent);
         }
         mxHelper = new MatrixHelper();
-    }
-
-    private void updateInstructionText() {
-        TextView instructionTextView = findViewById(R.id.instruction);
-        instructionTextView.setText("Kalibrierung erfolgreich abgeschlossen!");
-
-        ImageView checkImageView = findViewById(R.id.check);
-        checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
+        updateInstructionText();
     }
 
 
@@ -197,6 +186,16 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             redPixelX = -1;
             redPixelY = -1;
             imageFetcher.increment_arc_dot();
+        }
+    }
+
+    private void updateInstructionText() {
+        if (databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId).getCount() >=4) {
+            TextView instructionTextView = findViewById(R.id.instruction);
+            instructionTextView.setText("Kalibrierung erfolgreich abgeschlossen!");
+
+            ImageView checkImageView = findViewById(R.id.check);
+            checkImageView.setColorFilter(Color.parseColor("#2e6b12"));
         }
     }
 
@@ -263,8 +262,8 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     // Navigation ----------------------------------------------------------------------------------
     public void navigateToHome(View view) {
         Intent intent = new Intent(this, Home.class);
-        //intent.putExtra("IPADDRESS", "141.56.131.15");
         startActivity(intent);
+        finish();
     }
 
     public void navigateToGPS(View view) {
@@ -325,8 +324,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             exportCSVHelper.setCSVDefaultNameName("export_matrix_"+currentWindTurbineName);
             exportCSVHelper.createFile();
         } else if (id == R.id.action_test_matrix) {
-            Cursor cursor = databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId);
-            Toast.makeText(this, "Anzahl: "+ cursor.getCount(), Toast.LENGTH_LONG).show();
             databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
             testMatrix_fromDB();
         }

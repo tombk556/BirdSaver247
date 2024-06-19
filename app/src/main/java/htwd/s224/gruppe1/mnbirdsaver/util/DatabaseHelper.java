@@ -306,16 +306,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String avgLatitudeQuery = "SELECT wind_turbine_id, AVG(latitude) AS avg_latitude FROM " + VIEW_AVERAGE_COORDS + " GROUP BY wind_turbine_id";
 
-    /*
-        String mainQuery = "SELECT M.wind_turbine_id, M.pixel_x, M.pixel_y, M.longitude, Lo.avg_longitude, M.latitude, La.avg_latitude " +
-                "FROM " + VIEW_AVERAGE_COORDS + " AS M " +
-                "INNER JOIN (" + avgLongitudeQuery + ") AS Lo ON M.wind_turbine_id = Lo.wind_turbine_id " +
-                "INNER JOIN (" + avgLatitudeQuery + ") AS La ON M.wind_turbine_id = La.wind_turbine_id " +
-                "WHERE M.wind_turbine_id = ? " +
-                "AND ABS(M.latitude - La.avg_latitude) >= 0.00002 " +
-                "AND ABS(M.longitude - Lo.avg_longitude) >= 0.00002 " +
-                "ORDER BY ABS(M.longitude - Lo.avg_longitude) DESC, ABS(M.latitude - La.avg_latitude) DESC;";
-    */
 
         String mainQuery = "WITH OrderedData AS (" +
                 "SELECT M.wind_turbine_id, M.pixel_x, M.pixel_y, M.longitude, Lo.avg_longitude, M.latitude, La.avg_latitude, " +
@@ -376,13 +366,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // saves the Matrix to the Database
     public void getAffineTransformForWindTurbine(MatrixHelper MxTransformer, @NonNull Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] selectionArgs = new String[]{windTurbineId.toString()};
-        //String query = "SELECT pixel_x, pixel_y, longitude, latitude FROM " + VIEW_AVERAGE_COORDS + " WHERE wind_turbine_id = ?";
-        //Cursor cursor = db.rawQuery(query, selectionArgs);
         Cursor cursor = getFilteredAverageCoordsCursor(windTurbineId);
 
         if (cursor.getCount() < 4) {
-            Log.e("DBHelper", "At least 4 points are required to compute an affine transform.");
+            Log.e("DBHelper", "Four points are required to compute this affine transformation.");
             return;
         }
 
