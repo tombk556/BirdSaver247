@@ -25,4 +25,5 @@
     <string name="sim_on_off">Sim On/Off</string>
     <string name="Simulation">Sim On/Off</string>
     <string name="Sim">Simulation</string>
+    <string name="selection">... oder wählen Sie ein existierendes Windrad</string>
 </resources>
