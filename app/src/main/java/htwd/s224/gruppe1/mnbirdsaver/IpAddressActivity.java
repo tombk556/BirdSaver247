@@ -25,21 +25,28 @@ import java.util.List;
 import htwd.s224.gruppe1.mnbirdsaver.util.DatabaseHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.WindTurbine;
 
+/**
+ * The {@code IpAddressActivity} class provides the user interface for setting the IP address
+ * and name of the wind turbine. It allows users to select existing wind turbines from a spinner
+ * or add a new one.
+ */
 public class IpAddressActivity extends AppCompatActivity {
-    EditText editIp, editName;
-    DatabaseHelper databaseHelper;
-
-    ImageButton imagebuttonFooter;
-
-    int selected_windTurbineId = 0;
-
-    int current_windTurbineId = 0;
-
+    private EditText editIp, editName;
+    private DatabaseHelper databaseHelper;
+    private ImageButton imagebuttonFooter;
+    private int selected_windTurbineId = 0;
+    private int current_windTurbineId = 0;
     private static final String PREFS_NAME = "WindTurbinePrefs";
-
     private SharedPreferences sharedPreferences;
 
-
+    /**
+     * Called when the activity is first created. Initializes the UI components,
+     * sets up the spinner for wind turbines, and handles user interactions.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in {@link #onSaveInstanceState}. Otherwise, it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,19 +55,19 @@ public class IpAddressActivity extends AppCompatActivity {
         editName = findViewById(R.id.editName);
         imagebuttonFooter = findViewById(R.id.footer_image_button);
 
-        // DatabaseHelper initialisieren
+        // Initialize DatabaseHelper
         databaseHelper = new DatabaseHelper(this);
 
         current_windTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
 
-        // Initialisiere SharedPreferences
+        // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
 
-        // Spinner und Windrad Liste
+        // Setup Spinner for wind turbines
         Spinner spinnerWindTurbines = findViewById(R.id.spinnerWindTurbines);
         List<WindTurbine> windTurbines = new ArrayList<>();
-        windTurbines.add(new WindTurbine(0, "---", ""));           // Platzhalter
+        windTurbines.add(new WindTurbine(0, "---", ""));    // Placeholder
 
         List<WindTurbine> allWindTurbines = databaseHelper.getAllWindTurbines();
         windTurbines.addAll(allWindTurbines);
@@ -116,6 +123,12 @@ public class IpAddressActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Starts the calibration process by navigating to the Home activity.
+     * If the IP address or name is empty, shows a Toast message.
+     *
+     * @param view The view that was clicked.
+     */
     public void startCalibration(View view){
         // navigate to ip address view
         Intent intent = new Intent(this, Home.class);
@@ -137,14 +150,22 @@ public class IpAddressActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // use home button to navigate to camera view
-    // TODO replace hardcoded ip address
+    /**
+     * Navigates to the Home activity.
+     *
+     * @param view The view that was clicked. It is called when "Home" button is clicked.
+     */
     public void navigateToHome(View view){
         // navigate to ip home view
         Intent intent = new Intent(this, Home.class);
         startActivity(intent);
     }
 
+    /**
+     * Saves the current wind turbine ID to SharedPreferences.
+     *
+     * @param windTurbineId The ID of the wind turbine to save.
+     */
     private void saveCurrentWindTurbineId(long windTurbineId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("CurrentWindTurbineId", windTurbineId);

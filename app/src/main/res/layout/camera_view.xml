@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This XML layout file defines the UI for the camera view, including a header, camera preview, GPS coordinates display,
+    date display, simulation toggle, and instructions for the user.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,6 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <!-- Name TextView -->
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
@@ -39,6 +45,7 @@
         app:layout_constraintStart_toEndOf="@+id/title"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <!-- Start Button -->
     <Button
         android:id="@+id/submitButton"
         android:layout_width="63dp"
@@ -54,7 +61,7 @@
         app:layout_constraintStart_toEndOf="@+id/name"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- Camera -->
+    <!-- Camera Preview -->
     <ImageView
         android:id="@+id/view"
         android:layout_width="300dp"
@@ -65,7 +72,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
-    <!-- Description "GPS Koordinaten" -->
+    <!-- GPS Coordinates Description -->
     <TextView
         android:id="@+id/gpsCoord"
         android:layout_width="wrap_content"
@@ -77,6 +84,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view" />
 
+    <!-- GPS Coordinates Value -->
     <TextView
         android:id="@+id/gpsValue"
         android:layout_width="wrap_content"
@@ -88,7 +96,7 @@
         app:layout_constraintStart_toEndOf="@+id/gpsCoord"
         app:layout_constraintTop_toBottomOf="@id/view" />
 
-    <!-- GPS Settings -->
+    <!-- GPS Settings Button -->
     <ImageButton
         android:id="@+id/logo"
         android:layout_width="20dp"
@@ -102,7 +110,7 @@
         app:layout_constraintStart_toEndOf="@id/gpsValue"
         app:layout_constraintTop_toBottomOf="@id/view" />
 
-    <!-- Description "Date" -->
+    <!-- Date Description -->
     <TextView
         android:id="@+id/date"
         android:layout_width="wrap_content"
@@ -114,6 +122,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/gpsValue" />
 
+    <!-- Date Value -->
     <TextView
         android:id="@+id/dateValue"
         android:layout_width="wrap_content"
@@ -125,7 +134,7 @@
         app:layout_constraintStart_toEndOf="@+id/date"
         app:layout_constraintTop_toBottomOf="@id/gpsValue" />
 
-    <!-- Instructions-->
+    <!-- Instructions Headline -->
     <TextView
         android:id="@+id/instructionHeadline"
         android:layout_width="wrap_content"
@@ -138,6 +147,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date" />
 
+    <!-- Check Image -->
     <ImageView
         android:id="@+id/check"
         android:layout_width="30dp"
@@ -149,6 +159,7 @@
         app:layout_constraintBottom_toBottomOf="@id/instruction"
         />
 
+    <!-- Instructions Text -->
     <TextView
         android:id="@+id/instruction"
         android:layout_width="260dp"
@@ -163,6 +174,7 @@
         app:layout_constraintStart_toStartOf="@id/instructionHeadline"
         app:layout_constraintTop_toBottomOf="@+id/instructionHeadline" />
 
+    <!-- Simulation Label -->
     <TextView
         android:id="@+id/simulationLabel"
         android:layout_width="wrap_content"
@@ -174,6 +186,7 @@
         app:layout_constraintEnd_toStartOf="@+id/SimOnOff"
         app:layout_constraintTop_toBottomOf="@id/instruction" />
 
+    <!-- Simulation Switch -->
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/SimOnOff"
         android:layout_width="wrap_content"

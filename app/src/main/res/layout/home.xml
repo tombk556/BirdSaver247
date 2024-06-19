@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    This XML layout file defines the UI for the home screen of the application if an ip address is available.
+    It includes various components such as header, camera view, instructions, buttons, and footer.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,6 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <!-- Wind turbine Name -->
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
@@ -38,6 +44,7 @@
         app:layout_constraintStart_toEndOf="@+id/title"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <!-- Start Button -->
     <Button
         android:id="@+id/submitButton"
         android:layout_width="63dp"
@@ -53,7 +60,7 @@
         app:layout_constraintStart_toEndOf="@+id/name"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- Camera -->
+    <!-- Camera Preview -->
     <ImageView
         android:id="@+id/view"
         android:layout_width="300dp"
@@ -64,7 +71,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title" />
 
-    <!-- Instructions-->
+    <!-- Instructions Headline -->
     <TextView
         android:id="@+id/instructionHeadline"
         android:layout_width="wrap_content"
@@ -77,6 +84,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view" />
 
+    <!-- Check Icon for Instructions -->
     <ImageView
         android:id="@+id/check"
         android:layout_width="30dp"
@@ -87,6 +95,7 @@
         app:layout_constraintTop_toTopOf="@id/instruction"
         app:layout_constraintBottom_toBottomOf="@id/instruction"/>
 
+    <!-- Instructions Text -->
     <TextView
         android:id="@+id/instruction"
         android:layout_width="260dp"
@@ -121,6 +130,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/instruction" />
 
+    <!-- Simulation Label -->
     <TextView
         android:id="@+id/simulationLabel"
         android:layout_width="wrap_content"
@@ -132,6 +142,7 @@
         app:layout_constraintEnd_toStartOf="@+id/SimOnOff"
         app:layout_constraintTop_toBottomOf="@id/button" />
 
+    <!-- Switch for Simulation -->
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/SimOnOff"
         android:layout_width="wrap_content"

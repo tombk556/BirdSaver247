@@ -40,39 +40,44 @@ import htwd.s224.gruppe1.mnbirdsaver.util.ExportCSVHelper;
 import htwd.s224.gruppe1.mnbirdsaver.util.ImageFetcher;
 import htwd.s224.gruppe1.mnbirdsaver.util.MatrixHelper;
 
+/**
+ * The {@code CameraViewActivity} class provides the main camera view for the application.
+ * It manages the user interface for displaying the camera feed, handling location updates,
+ * and processing red pixel coordinates.
+ */
 public class CameraViewActivity extends AppCompatActivity implements ImageFetcher.RedPixelCoordinatesListener {
 
     private ImageView imageView;
     private String ip_address;
     private Button toggleButton;
     private Handler handler = new Handler();
-
     private static final int PERMISSION_FINE_LOCATION = 99;
-
-    TextView tv_gps, tv_timestamp, tv_name;
-    LocationRequest locationRequest;
-    FusedLocationProviderClient fusedLocationProviderClient;
-    LocationCallback locationCallback;
-
-    DatabaseHelper databaseHelper;
-    ExportCSVHelper exportCSVHelper;
-
+    private TextView tv_gps, tv_timestamp, tv_name;
+    private LocationRequest locationRequest;
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationCallback locationCallback;
+    private DatabaseHelper databaseHelper;
+    private ExportCSVHelper exportCSVHelper;
     private int currentWindTurbineId;
     private String currentWindTurbineName;
-
-    ImageFetcher imageFetcher;
+    private ImageFetcher imageFetcher;
     private boolean isDownloading = false;
     private Runnable imageDownloader;
-
     private int redPixelX = -1;
     private int redPixelY = -1;
     private boolean includeArcDot;
     private SwitchCompat simOnOffSwitch;
-
     private int locationCount = 0;
-    MatrixHelper mxHelper;
+    private MatrixHelper mxHelper;
 
-
+    /**
+     * Called when the activity is first created. Initializes the UI components, sets up the
+     * location request, initializes the image fetcher, and handles user interactions.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being
+     *                           shut down then this Bundle contains the data it most recently
+     *                           supplied in {@link #onSaveInstanceState}. Otherwise, it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +85,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         imageView = findViewById(R.id.view);
         tv_gps = findViewById(R.id.gpsValue);
@@ -96,7 +100,6 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
                 .setMaxUpdateDelayMillis(10000)
                 .build();
 
-
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -109,13 +112,10 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
             }
         };
 
-        // DatabaseHelper initialisieren
+        // Initialize DatabaseHelper
         databaseHelper = new DatabaseHelper(this);
 
-
-
-
-        // Letzte WindTurbine_ID abrufen, Standardwert ist 0
+        // Get the last wind turbine ID, default is 0
         currentWindTurbineId = (int) databaseHelper.getCurrentWindTurbineId();
 
         if (currentWindTurbineId == 0) {
@@ -167,7 +167,11 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
 
     // on Location Change --------------------------------------------------------------------------
-
+    /**
+     * Updates the UI with the current GPS coordinates and timestamp.
+     *
+     * @param location The current location.
+     */
     private void updateUI_values(Location location) {
         System.out.println("New Coordinates");
         String gps_coordinates = _convertToDMS(location.getLatitude()) + "\n" + _convertToDMS(location.getLongitude());
@@ -175,6 +179,11 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         tv_timestamp.setText(Calendar.getInstance().getTime().toString());
     }
 
+    /**
+     * Inserts the red pixel coordinates and GPS data into the database.
+     *
+     * @param location The current location.
+     */
     private void insertData(Location location) {
         double gps_long = location.getLongitude();
         double gps_lat = location.getLatitude();
@@ -189,6 +198,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
+    /**
+     * Updates the instruction text based on the number of measurements in the database.
+     */
     private void updateInstructionText() {
         if (databaseHelper.getFilteredAverageCoordsCursor(currentWindTurbineId).getCount() >=4) {
             TextView instructionTextView = findViewById(R.id.instruction);
@@ -199,7 +211,12 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
-    // Converts the coordinates into the known form with degrees, minutes and seconds
+    /**
+     * Converts the coordinates into the known form with degrees, minutes, and seconds.
+     *
+     * @param decimalDegree The coordinate in decimal degrees.
+     * @return The coordinate as a string in degrees, minutes, and seconds.
+     */
     @SuppressLint("DefaultLocale")
     private String _convertToDMS(double decimalDegree) {
         int degree = (int) decimalDegree;
@@ -210,11 +227,19 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     }
 
     // Image and Red Pixel -------------------------------------------------------------------------
-
+    /**
+     * Initializes the {@code ImageFetcher} with the current IP address and arc dot inclusion setting.
+     */
     private void initializeImageFetcher() {
         imageFetcher = new ImageFetcher(ip_address, imageView, this, includeArcDot);
     }
 
+    /**
+     * Callback method for when red pixel coordinates are detected.
+     *
+     * @param x The X coordinate of the red pixel.
+     * @param y The Y coordinate of the red pixel.
+     */
     @Override
     public void onRedPixelCoordinatesDetected(int x, int y) {
         redPixelX = x;
@@ -222,7 +247,9 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
     }
 
     // GPS -----------------------------------------------------------------------------------------
-
+    /**
+     * Starts the location updates.
+     */
     private void startLocationUpdates() {
         tv_gps.setText("Loading...");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -232,13 +259,20 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         }
     }
 
+    /**
+     * Stops the location updates.
+     */
     private void stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
 
     // Buttons -------------------------------------------------------------------------------------
-
+    /**
+     * Handles the start button click to start or stop image downloading and location updates.
+     *
+     * @param view The button view.
+     */
     public void startButtonClicked(View view) {
         Log.d("CameraView", "startButtonClicked() wurde aufgerufen");
 
@@ -260,30 +294,51 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
 
     // Navigation ----------------------------------------------------------------------------------
+    /**
+     * Navigates to the home activity.
+     *
+     * @param view The button view.
+     */
     public void navigateToHome(View view) {
         Intent intent = new Intent(this, Home.class);
         startActivity(intent);
         finish();
     }
 
+    /**
+     * Navigates to the GPS activity.
+     *
+     * @param view The button view.
+     */
     public void navigateToGPS(View view) {
         Intent intent = new Intent(this, GPSActivity.class);
         startActivity(intent);
     }
 
     // Matrix --------------------------------------------------------------------------------------
-
+    /**
+     * Updates the transformation matrix in the database.
+     */
     private void updateMatrix_inDB() {
         MatrixHelper mxHelper =  new MatrixHelper();
         databaseHelper.getAffineTransformForWindTurbine(mxHelper, currentWindTurbineId);
 
     }
 
+    /**
+     * Retrieves the transformation matrix from the database.
+     *
+     * @return The transformation matrix.
+     */
     private Matrix getMatrix_fromDB() {
         MatrixHelper mxHelper =  new MatrixHelper();
         return databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
     }
 
+    /**
+     * Tests the transformation matrix from the database by converting pixel coordinates to GPS coordinates.
+     * This method can be used later on to get any pixel values in the camera view and its related GPS coordinates.
+     */
     private void testMatrix_fromDB() {
         MatrixHelper mxHelper =  new MatrixHelper();
         Matrix transformMatrix =  databaseHelper.getMatrixByWindTurbineId(mxHelper, currentWindTurbineId);
@@ -299,12 +354,24 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
 
 
     // Menu ----------------------------------------------------------------------------------------
+    /**
+     * Inflates the options menu.
+     *
+     * @param menu The options menu.
+     * @return True if the menu was successfully created.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    /**
+     * Handles item selections from the options menu.
+     *
+     * @param item The selected menu item.
+     * @return True if the item was successfully handled.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -331,8 +398,13 @@ public class CameraViewActivity extends AppCompatActivity implements ImageFetche
         return super.onOptionsItemSelected(item);
     }
 
-    // Result of ExportCSVHelper
-    @Override
+    /**
+     * Handles the result of activities started for a result.
+     *
+     * @param requestCode The request code.
+     * @param resultCode The result code.
+     * @param data The result data.
+     */    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         exportCSVHelper.handleActivityResult(requestCode, resultCode, data);
