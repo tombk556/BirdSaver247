@@ -1,3 +1,7 @@
+/**
+ * Helper class for managing the SQLite database used in the Bird Saver application.
+ * This class handles the creation, updating, and querying of database tables and views.
+ */
 package htwd.s224.gruppe1.mnbirdsaver.util;
 
 import android.annotation.SuppressLint;
@@ -13,61 +17,51 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseHelper";
 
-    // Database Name und Version
+    // Database Name and Version
     private static final String DATABASE_NAME = "birdsaver.db";
     private static final int DATABASE_VERSION = 1;
 
-    // Table name and columns for wind_turbine
-    public static final String TABLE_WIND_TURBINE = "wind_turbine";
-    public static final String COLUMN_WIND_TURBINE_ID = "id";
-    public static final String COLUMN_WIND_TURBINE_NAME = "name";
-    private static final String COLUMN_WIND_TURBINE_IP_ADDRESS = "ip_address";  // Neue Spalte
+    // Table names and columns
+    private static final String TABLE_WIND_TURBINE = "wind_turbine";
+    private static final String COLUMN_WIND_TURBINE_ID = "id";
+    private static final String COLUMN_WIND_TURBINE_NAME = "name";
+    private static final String COLUMN_WIND_TURBINE_IP_ADDRESS = "ip_address";
 
-    // Table name and columns for measurement
-    public static final String TABLE_MEASUREMENT = "measurement";
-    public static final String COLUMN_MEASUREMENT_ID = "id";
-    public static final String COLUMN_PIXEL_X = "pixel_x";
-    public static final String COLUMN_PIXEL_Y = "pixel_y";
-    public static final String COLUMN_LONGITUDE = "longitude";
-    public static final String COLUMN_LATITUDE = "latitude";
+    private static final String TABLE_MEASUREMENT = "measurement";
+    private static final String COLUMN_MEASUREMENT_ID = "id";
+    private static final String COLUMN_PIXEL_X = "pixel_x";
+    private static final String COLUMN_PIXEL_Y = "pixel_y";
+    private static final String COLUMN_LONGITUDE = "longitude";
+    private static final String COLUMN_LATITUDE = "latitude";
+    private static final String COLUMN_TIMESTAMP = "timestamp";
+    private static final String COLUMN_WIND_TURBINE_ID_FK = "wind_turbine_id";
 
-    public static final String COLUMN_TIMESTAMP = "timestamp";
-    public static final String COLUMN_WIND_TURBINE_ID_FK = "wind_turbine_id";
-
-    // Table name and columns for matrix
     private static final String TABLE_MATRIX = "matrix_transform";
-
     private static final String COLUMN_MATRIX_DATA = "matrix_data";
 
-    // Names of the Views
-    public static final String VIEW_MEASUREMENT_WITH_WIND_TURBINE = "wind_turbine_measurement";
-    public static final String VIEW_AVERAGE_COORDS = "wind_turbine_measurement_avg";
-
+    // View names
+    private static final String VIEW_MEASUREMENT_WITH_WIND_TURBINE = "wind_turbine_measurement";
+    private static final String VIEW_AVERAGE_COORDS = "wind_turbine_measurement_avg";
 
     // SharedPreferences
-    private Context context;
-
     private static final String PREFS_NAME = "WindTurbinePrefs";
     private static final String CURRENT_WIND_TURBINE_ID = "CurrentWindTurbineId";
 
     private SharedPreferences sharedPreferences;
+    private Context context;
 
-    // Strings for CREATING of all tables ----------------------------------------------------------
-
-    //  Create wind_turbine table
+    // SQL statements for creating tables and views
     private static final String CREATE_TABLE_WIND_TURBINE = "CREATE TABLE " + TABLE_WIND_TURBINE + "("
             + COLUMN_WIND_TURBINE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_WIND_TURBINE_NAME + " TEXT NOT NULL, "
-            + COLUMN_WIND_TURBINE_IP_ADDRESS + " TEXT NOT NULL" + ")";
+            + COLUMN_WIND_TURBINE_IP_ADDRESS + " TEXT NOT NULL)";
 
-    //  Create measurement table
     private static final String CREATE_TABLE_MEASUREMENT = "CREATE TABLE " + TABLE_MEASUREMENT + "("
             + COLUMN_MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_PIXEL_X + " INTEGER NOT NULL, "
@@ -75,54 +69,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_LONGITUDE + " DOUBLE NOT NULL, "
             + COLUMN_LATITUDE + " DOUBLE NOT NULL, "
             + COLUMN_WIND_TURBINE_ID_FK + " INTEGER NOT NULL, "
-            + COLUMN_TIMESTAMP + " TEXT,"
-            + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "));";
+            + COLUMN_TIMESTAMP + " TEXT, "
+            + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "))";
 
-
-    //  Create matrix table (for Result of the Affine Transformation)
     private static final String CREATE_TABLE_MATRIX = "CREATE TABLE " + TABLE_MATRIX + "("
             + COLUMN_WIND_TURBINE_ID_FK + " INTEGER PRIMARY KEY, "
             + COLUMN_MATRIX_DATA + " TEXT NOT NULL, "
-            + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "));";
+            + "FOREIGN KEY(" + COLUMN_WIND_TURBINE_ID_FK + ") REFERENCES " + TABLE_WIND_TURBINE + "(" + COLUMN_WIND_TURBINE_ID + "))";
 
-
-    // Strings for CREATING of all Views -----------------------------------------------------------
-
-    // Simple join of wind_turbine and measurement table
     private static final String CREATE_VIEW_MEASUREMENT_WITH_WIND_TURBINE = "CREATE VIEW " + VIEW_MEASUREMENT_WITH_WIND_TURBINE + " AS "
             + "SELECT "
             + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " AS wind_turbine_id, "
             + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, "
-            + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_adress, "
+            + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, "
             + TABLE_MEASUREMENT + "." + COLUMN_MEASUREMENT_ID + " AS measurement_id, "
             + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + " AS pixel_x, "
             + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " AS pixel_y, "
             + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + " AS longitude, "
             + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + " AS latitude "
             + "FROM " + TABLE_MEASUREMENT + " "
-            + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + ";";
+            + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID;
 
-    // Join of of wind_turbine and measurement table, but if pixels have multiple GPS coordinates, we will get the average of it
-    private static final String CREATE_AVERAGE_COORDS_VIEW = "CREATE VIEW " + VIEW_AVERAGE_COORDS + " AS " +
-            "SELECT " +
-            TABLE_MEASUREMENT + "." + COLUMN_MEASUREMENT_ID + " AS measurement_id, " +
-            TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, " +
-            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, " +
-            TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, " +
-            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + " AS pixel_x, " +
-            TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " AS pixel_y, " +
-            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS longitude, " +
-            "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS latitude " +
-            "FROM " + TABLE_MEASUREMENT + " " +
-            "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " " +
-            "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y  + " " +
-            "ORDER BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ";";
+    private static final String CREATE_AVERAGE_COORDS_VIEW = "CREATE VIEW " + VIEW_AVERAGE_COORDS + " AS "
+            + "SELECT "
+            + TABLE_MEASUREMENT + "." + COLUMN_MEASUREMENT_ID + " AS measurement_id, "
+            + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " AS wind_turbine_id, "
+            + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_NAME + " AS wind_turbine_name, "
+            + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_IP_ADDRESS + " AS wind_turbine_ip_address, "
+            + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + " AS pixel_x, "
+            + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " AS pixel_y, "
+            + "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LONGITUDE + ") AS longitude, "
+            + "AVG(" + TABLE_MEASUREMENT + "." + COLUMN_LATITUDE + ") AS latitude "
+            + "FROM " + TABLE_MEASUREMENT + " "
+            + "JOIN " + TABLE_WIND_TURBINE + " ON " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + " = " + TABLE_WIND_TURBINE + "." + COLUMN_WIND_TURBINE_ID + " "
+            + "GROUP BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_X + ", " + TABLE_MEASUREMENT + "." + COLUMN_PIXEL_Y + " "
+            + "ORDER BY " + TABLE_MEASUREMENT + "." + COLUMN_WIND_TURBINE_ID_FK;
 
-
-    // The DatabaseHelper Class --------------------------------------------------------------------
+    /**
+     * Constructs a new DatabaseHelper with the specified context.
+     *
+     * @param context The context to use for locating paths to the database.
+     */
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); // for saving the last wind_turbine id, if new turbine is added
+        sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         this.context = context;
     }
 
@@ -145,7 +135,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         resetDatabase(db);
     }
 
-
+    /**
+     * Resets the database by dropping all tables and views and recreating them.
+     *
+     * @param db The database to reset.
+     */
     private void resetDatabase(SQLiteDatabase db) {
         Log.d(TAG, "Resetting database");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEASUREMENT);
@@ -155,9 +149,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_MEASUREMENT_WITH_WIND_TURBINE);
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
         onCreate(db);
-
     }
 
+    /**
+     * Resets the matrix table and the average coordinates view.
+     */
     public void reset_matrix() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP VIEW IF EXISTS " + VIEW_AVERAGE_COORDS);
@@ -166,7 +162,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_AVERAGE_COORDS_VIEW);
     }
 
-    // Method for resetting the database
+    /**
+     * Resets the database and saves the current wind turbine ID to 0.
+     */
     public void resetDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
         resetDatabase(db);
@@ -174,10 +172,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         saveCurrentWindTurbineId(0);
     }
 
-
     // WIND TURBINE --------------------------------------------------------------------------------
 
-    // add new Wind Turbine and return the ID
+    /**
+     * Adds a new wind turbine to the database.
+     *
+     * @param name The name of the wind turbine.
+     * @param ipAddress The IP address of the wind turbine.
+     * @return The ID of the newly added wind turbine.
+     */
     public long addWindTurbine(String name, String ipAddress) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -189,22 +192,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.e(TAG, "Wind turbine could not be inserted");
         } else {
             Log.d(TAG, "Wind turbine successfully inserted with ID: " + newId);
-            saveCurrentWindTurbineId(newId);                            // save to sharedPreferences
+            saveCurrentWindTurbineId(newId);  // save to sharedPreferences
         }
         db.close();
         return newId;
     }
 
+    /**
+     * Saves the current wind turbine ID to shared preferences.
+     *
+     * @param windTurbineId The ID of the wind turbine to save.
+     */
     private void saveCurrentWindTurbineId(long windTurbineId) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong(CURRENT_WIND_TURBINE_ID, windTurbineId);
         editor.apply();
     }
 
+    /**
+     * Retrieves the current wind turbine ID from shared preferences.
+     *
+     * @return The current wind turbine ID.
+     */
     public long getCurrentWindTurbineId() {
         return sharedPreferences.getLong(CURRENT_WIND_TURBINE_ID, 0);
     }
 
+    /**
+     * Retrieves the IP address of a wind turbine by its ID.
+     *
+     * @param windTurbineId The ID of the wind turbine.
+     * @return The IP address of the wind turbine.
+     */
     public String getWindTurbineIpAddress(int windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_WIND_TURBINE_IP_ADDRESS + " FROM " + TABLE_WIND_TURBINE + " WHERE " + COLUMN_WIND_TURBINE_ID + " = ?";
@@ -226,6 +245,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return ipAddress;
     }
 
+    /**
+     * Retrieves the name of a wind turbine by its ID.
+     *
+     * @param windTurbineId The ID of the wind turbine.
+     * @return The name of the wind turbine.
+     */
     public String getWindTurbineName(int windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_WIND_TURBINE_NAME + " FROM " + TABLE_WIND_TURBINE + " WHERE " + COLUMN_WIND_TURBINE_ID + " = ?";
@@ -247,12 +272,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return windTurbineName;
     }
 
-
+    /**
+     * Retrieves a list of all wind turbines in the database.
+     *
+     * @return A list of all wind turbines.
+     */
     @SuppressLint("Range")
     public List<WindTurbine> getAllWindTurbines() {
         List<WindTurbine> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_WIND_TURBINE, new String[] {COLUMN_WIND_TURBINE_ID, COLUMN_WIND_TURBINE_NAME, COLUMN_WIND_TURBINE_IP_ADDRESS}, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_WIND_TURBINE, new String[]{COLUMN_WIND_TURBINE_ID, COLUMN_WIND_TURBINE_NAME, COLUMN_WIND_TURBINE_IP_ADDRESS}, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndex(COLUMN_WIND_TURBINE_ID));
@@ -269,8 +298,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // MEASUREMENT ---------------------------------------------------------------------------------
 
-
-    // add new measurement for certain wind turbine (fk)
+    /**
+     * Adds a new measurement for a specific wind turbine.
+     *
+     * @param pixelX The x-coordinate of the pixel.
+     * @param pixelY The y-coordinate of the pixel.
+     * @param longitude The longitude coordinate.
+     * @param latitude The latitude coordinate.
+     * @param windTurbineId The ID of the associated wind turbine.
+     * @param timestamp The timestamp of the measurement.
+     */
     public void addMeasurement(int pixelX, int pixelY, double longitude, double latitude, int windTurbineId, String timestamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -290,6 +327,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Retrieves a cursor for the average coordinates view filtered by the wind turbine ID.
+     *
+     * @param windTurbineId The ID of the wind turbine to filter by, or null to retrieve all records.
+     * @return A cursor for the average coordinates view.
+     */
     public Cursor getAverageCoordsCursor(Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         if (windTurbineId == null) {
@@ -299,13 +342,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Retrieves a cursor for the filtered average coordinates view based on the specified wind turbine ID.
+     *
+     * @param windTurbineId The ID of the wind turbine to filter by.
+     * @return A cursor for the filtered average coordinates view.
+     */
     public Cursor getFilteredAverageCoordsCursor(Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String avgLongitudeQuery = "SELECT wind_turbine_id, AVG(longitude) AS avg_longitude FROM " + VIEW_AVERAGE_COORDS + " GROUP BY wind_turbine_id";
-
         String avgLatitudeQuery = "SELECT wind_turbine_id, AVG(latitude) AS avg_latitude FROM " + VIEW_AVERAGE_COORDS + " GROUP BY wind_turbine_id";
-
 
         String mainQuery = "WITH OrderedData AS (" +
                 "SELECT M.wind_turbine_id, M.pixel_x, M.pixel_y, M.longitude, Lo.avg_longitude, M.latitude, La.avg_latitude, " +
@@ -321,27 +368,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "SELECT wind_turbine_id, pixel_x, pixel_y, longitude, avg_longitude, latitude, avg_latitude, prev_longitude, prev_latitude " +
                 "FROM OrderedData " +
                 "WHERE (ABS(longitude - prev_longitude) >= 0.0001 AND ABS(latitude - prev_latitude) >= 0.00002) "+
-                "OR (ABS(longitude - prev_longitude) >= 0.0002 AND ABS(latitude - prev_latitude) >= 0.00001) "+
-                ";";
+                "OR (ABS(longitude - prev_longitude) >= 0.0002 AND ABS(latitude - prev_latitude) >= 0.00001)";
 
         if (windTurbineId != null) {
             return db.rawQuery(mainQuery, new String[]{String.valueOf(windTurbineId)});
         } else {
             return db.rawQuery(mainQuery, new String[]{"M.wind_turbine_id"});
         }
-
     }
 
     // MATRIX --------------------------------------------------------------------------------------
 
-    // Method for inserting the matrix
+    /**
+     * Saves the matrix data to the database for a specific wind turbine.
+     *
+     * @param matrixData The matrix data to save.
+     * @param windTurbineId The ID of the associated wind turbine.
+     */
     public void saveMatrixToDatabase(String matrixData, int windTurbineId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_MATRIX_DATA, matrixData);
         values.put(COLUMN_WIND_TURBINE_ID_FK, windTurbineId);
 
-        // Verwendung von insertWithOnConflict, um Konflikte zu handhaben
         long result = db.insertWithOnConflict(TABLE_MATRIX, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         if (result == -1) {
             Log.e(TAG, "Matrix could not be inserted or updated");
@@ -351,19 +400,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    /**
+     * Retrieves a cursor for the matrix data filtered by the wind turbine ID.
+     *
+     * @param windTurbineId The ID of the wind turbine to filter by, or null to retrieve all records.
+     * @return A cursor for the matrix data.
+     */
     public Cursor getMatrixCursor(Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         if (windTurbineId == null) {
-            // Retrieve all entries from the matrix table
             return db.rawQuery("SELECT * FROM " + TABLE_MATRIX, null);
         } else {
-            // Retrieve specific entries from the matrix table based on the wind turbine ID
             return db.rawQuery("SELECT * FROM " + TABLE_MATRIX + " WHERE " + COLUMN_WIND_TURBINE_ID_FK + " = ?", new String[]{String.valueOf(windTurbineId)});
         }
     }
 
-    // the Affine Transformation based on VIEW_AVERAGE_COORDS with windTurbineId
-    // saves the Matrix to the Database
+    /**
+     * Computes the affine transformation for a specific wind turbine and saves the result to the database.
+     *
+     * @param MxTransformer The MatrixHelper instance used for serialization.
+     * @param windTurbineId The ID of the wind turbine.
+     */
     public void getAffineTransformForWindTurbine(MatrixHelper MxTransformer, @NonNull Integer windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = getFilteredAverageCoordsCursor(windTurbineId);
@@ -405,10 +462,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Matrix matrix = new Matrix();
         matrix.setPolyToPoly(src, 0, dst, 0, 4);
         String matrixDataString = MxTransformer.serializeMatrix(matrix);
-        saveMatrixToDatabase(matrixDataString, windTurbineId);                   // save to Database
+        saveMatrixToDatabase(matrixDataString, windTurbineId);  // save to Database
     }
 
-
+    /**
+     * Retrieves the matrix for a specific wind turbine from the database.
+     *
+     * @param MxTransformer The MatrixHelper instance used for deserialization.
+     * @param windTurbineId The ID of the wind turbine.
+     * @return The matrix for the specified wind turbine.
+     */
     public Matrix getMatrixByWindTurbineId(MatrixHelper MxTransformer, int windTurbineId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_MATRIX_DATA + " FROM " + TABLE_MATRIX + " WHERE " + COLUMN_WIND_TURBINE_ID_FK + " = ?";
@@ -418,7 +481,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor = db.rawQuery(query, new String[]{String.valueOf(windTurbineId)});
             if (cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndex(COLUMN_MATRIX_DATA);
-                if (columnIndex != -1) {                          // Check whether the column exists
+                if (columnIndex != -1) {  // Check whether the column exists
                     String matrixData = cursor.getString(columnIndex);
                     matrix = MxTransformer.deserializeMatrix(matrixData);
                 } else {
@@ -437,6 +500,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return matrix;
     }
-
-
 }
