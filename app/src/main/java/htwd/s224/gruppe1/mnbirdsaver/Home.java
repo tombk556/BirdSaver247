@@ -141,8 +141,6 @@ public class Home extends AppCompatActivity implements ImageFetcher.RedPixelCoor
         }
 
         matrixHelper = new MatrixHelper();
-        databaseHelper.reset_matrix();
-
     }
 
 
