@@ -33,16 +33,10 @@ import htwd.s224.gruppe1.mnbirdsaver.R;
 
 public class GPSActivity extends AppCompatActivity {
 
-    public static final int DEFAULT_UPDATE_INTERVAL = 5; // Sekunden
-    public static final int FAST_UPDATE_INTERVAL = 2;
-    private static final int PERMISSION_FINE_LOCATION = 99; // irgendwelche Identifikationsnummer
-
-    boolean updateOn = false; // informiert, ob das Tracking aktiv ist!
-
+    private static final int PERMISSION_FINE_LOCATION = 99;
+    boolean updateOn = false; // informs about active tracking
     TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_time, tv_address;
-    SwitchCompat sw_location_updates, sw_gps;
-    TextView tv_updates, tv_gps_sensor;
-
+    SwitchCompat sw_location_updates;
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationCallback locationCallback;
@@ -52,7 +46,7 @@ public class GPSActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gps);
 
-        // Einbindung der GUI-Elemente
+        // GUI Elements
         tv_lat = findViewById(R.id.tv_lat);
         tv_lon = findViewById(R.id.tv_lon);
         tv_altitude = findViewById(R.id.tv_alt);
@@ -61,23 +55,18 @@ public class GPSActivity extends AppCompatActivity {
         tv_address = findViewById(R.id.tv_address);
 
         sw_location_updates = findViewById(R.id.sw_location_updates);
-        tv_updates = findViewById(R.id.tv_updates);
 
-        sw_gps = findViewById(R.id.sw_gps);
-        tv_gps_sensor = findViewById(R.id.tv_gps_sensor);
-
-
-        // Initialisierung des FusedLocationProviderClient
+        // Initializing of  FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Konfiguration von LocationRequest
+        // Configuration LocationRequest
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
                 .setWaitForAccurateLocation(true)
                 .setMinUpdateIntervalMillis(2000)
                 .setMaxUpdateDelayMillis(4000)
                 .build();
 
-        // Erstellung des Location Callback
+        // Creating a Location Callback
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -87,28 +76,6 @@ public class GPSActivity extends AppCompatActivity {
                 }
             }
         };
-
-        // Event Listener für Schalter
-        sw_gps.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
-                        .setWaitForAccurateLocation(true)
-                        .setMinUpdateIntervalMillis(2000)
-                        .setMaxUpdateDelayMillis(4000)
-                        .build();
-                tv_gps_sensor.setText("high -> mostly GPS");
-            } else {
-                locationRequest = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 2000)
-                        .setWaitForAccurateLocation(true)
-                        .setMinUpdateIntervalMillis(2000)
-                        .setMaxUpdateDelayMillis(4000)
-                        .build();
-                tv_gps_sensor.setText("low -> mostly WiFi + Cell Tower");
-            }
-            if (updateOn) {
-                updateLocationUpdates();
-            }
-        });
 
         sw_location_updates.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -122,7 +89,6 @@ public class GPSActivity extends AppCompatActivity {
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
             updateOn = true;
-            tv_updates.setText("Location is being tracked");
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_FINE_LOCATION);
@@ -144,7 +110,6 @@ public class GPSActivity extends AppCompatActivity {
         updateOn = false;
         tv_lat.setText("Not tracking location");
         tv_lon.setText("Not tracking location");
-        tv_updates.setText("Location is not being tracked");
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
@@ -186,11 +151,9 @@ public class GPSActivity extends AppCompatActivity {
     }
 
     // use home button to navigate to camera view
-    // TODO replace hardcoded ip address
     public void navigateToHome(View view){
         // navigate to ip home view
         Intent intent = new Intent(this, Home.class);
-        intent.putExtra("IPADDRESS", "141.56.131.15"); // make sure value for ip address can be used in Home / camera_view
         startActivity(intent);
     }
 }

@@ -3,6 +3,7 @@ package htwd.s224.gruppe1.mnbirdsaver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +15,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 // Importiere den DatabaseHelper aus dem Unterpaket
@@ -66,6 +69,8 @@ public class IpAddressActivity extends AppCompatActivity {
 
         // Setup Spinner for wind turbines
         Spinner spinnerWindTurbines = findViewById(R.id.spinnerWindTurbines);
+        TextView label = findViewById(R.id.description2);
+
         List<WindTurbine> windTurbines = new ArrayList<>();
         windTurbines.add(new WindTurbine(0, "---", ""));    // Placeholder
 
@@ -102,9 +107,6 @@ public class IpAddressActivity extends AppCompatActivity {
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-                    editIp.setEnabled(true);
-                    //editIp.setText("");
-
                     editName.setEnabled(true);
                     editName.setText("");
                     selected_windTurbineId = 0;
@@ -114,6 +116,7 @@ public class IpAddressActivity extends AppCompatActivity {
 
         } else {
             spinnerWindTurbines.setVisibility(View.GONE);
+            label.setVisibility(View.GONE);
         }
 
         if (current_windTurbineId == 0) {
